@@ -2,9 +2,25 @@ import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { 
   Search, AlertCircle, RefreshCw, ChevronDown, Tag, Gift, MessageCircle, Copy, 
   ArrowUp, Check, Menu, Calendar, ShieldAlert, Youtube, Zap, Camera, 
-  CreditCard, TrendingUp, Phone, X, Calculator, Percent, Layers, Box, Wallet, 
+  CreditCard, TrendingUp, X, Calculator, Percent, Layers, Box, Wallet, 
   Minus, Plus, IndianRupee, Star, ChevronLeft, ArrowRight
 } from 'lucide-react';
+
+// ==========================================
+// CUSTOM SAMSUNG PHONE ICON (CLEANED)
+// ==========================================
+const CustomSamsungIcon = ({ size = 20, className = "" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    {/* Phone Body */}
+    <rect x="4.5" y="1.5" width="15" height="21" rx="3.5" stroke="currentColor" strokeWidth="1.5"/>
+    {/* Camera Module (Samsung Signature 3 vertical lenses) */}
+    <circle cx="8.5" cy="5.5" r="1.2" fill="currentColor" />
+    <circle cx="8.5" cy="9" r="1.2" fill="currentColor" />
+    <circle cx="8.5" cy="12.5" r="1.2" fill="currentColor" />
+    {/* Flash */}
+    <circle cx="11.5" cy="7" r="0.7" fill="currentColor" />
+  </svg>
+);
 
 // ==========================================
 // GLOBALS & UTILS
@@ -33,11 +49,9 @@ const isValidDiscount = (val) => {
   return str !== '0' && str !== '-' && str !== 'NA' && str !== 'NULL' && str !== 'NO CASHBACK' && str !== '';
 };
 
-// Check if it's a combo offer (UG + BCB)
 const isComboOffer = (val) => {
   if (!val) return false;
-  const str = String(val).toUpperCase().replace(/\s+/g, '');
-  return str.includes('+BCB') || str.includes('UG+BCB');
+  return String(val).toUpperCase().replace(/\s+/g, '').includes('+BCB');
 };
 
 const splitAmountAndDesc = (text) => {
@@ -109,12 +123,14 @@ const PhoneCard = memo(({ phone, isExpanded, isSelectedForCompare, onToggleExpan
       )}
 
       <div onClick={() => onToggleExpand(phone.id)} className="flex justify-between items-center p-3.5 sm:p-4 cursor-pointer">
-        <div className="flex items-center gap-3.5 w-[72%] pr-2">
-          <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 border border-slate-100 p-1.5 shadow-inner">
+        <div className="flex items-center gap-3 w-[72%] pr-2">
+          
+          {/* UPDATED IMAGE CONTAINER: Bada size, almost zero padding, auto zoom */}
+          <div className="w-14 h-14 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 border border-slate-100 p-0.5 shadow-inner overflow-hidden">
             {phone.imageUrl ? (
-              <img src={phone.imageUrl} alt="" loading="lazy" className="w-full h-full object-contain" />
+              <img src={phone.imageUrl} alt="" loading="lazy" className="w-full h-full object-contain scale-110" />
             ) : (
-              <Phone className="text-slate-300" size={20} />
+              <CustomSamsungIcon className="text-slate-300" size={26} />
             )}
           </div>
           
@@ -294,12 +310,10 @@ const NlcCalculator = memo(({ onClose, initialData }) => {
       const isCombo = isComboOffer(initialData.specialUpgrade);
       
       if (isCombo) {
-          // If combo, add all relevant discounts automatically
           const totalUpgBank = upgNum + spclUpNum + bnkNum;
           setUpgradeCb(totalUpgBank > 0 ? totalUpgBank.toString() : '');
           setCbPromptAmount(null);
       } else {
-          // Normal case: Prefer Upgrade. If only bank exists, prompt for bank.
           const totalUpgrade = upgNum + spclUpNum;
           if (totalUpgrade > 0) {
               setUpgradeCb(totalUpgrade.toString());
@@ -399,7 +413,7 @@ const NlcCalculator = memo(({ onClose, initialData }) => {
         {initialData && initialData.model && (
           <div className="text-center animate-fade-in">
             <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest bg-white border border-slate-200 shadow-sm text-slate-700`}>
-              <Phone size={12} className={series === 'S' ? 'text-indigo-500' : 'text-purple-500'} /> 
+              <CustomSamsungIcon className={series === 'S' ? 'text-indigo-500' : 'text-purple-500'} size={14} /> 
               {splitModelName(initialData.model).main}
             </span>
           </div>
@@ -735,7 +749,6 @@ export default function App() {
     
     if (isValidDiscount(phone.sellOut)) { const p = splitAmountAndDesc(phone.sellOut); txt += `🏷️ Sellout: - ${formatSafePrice(p.amount)}\n`; if(p.desc) txt += `   ↳ _(${p.desc})_\n`; }
     
-    // --- SMART OR LOGIC FOR WHATSAPP ---
     const hasUpg = isValidDiscount(phone.upgrade);
     const hasBank = isValidDiscount(phone.bank);
     const isCombo = isComboOffer(phone.specialUpgrade);
@@ -798,17 +811,76 @@ export default function App() {
       const sn = splitModelName(phone.model);
       const posterTitle = sn.sub ? `${sn.main} ${sn.sub}` : sn.main;
       
-      if (templateId === 'default') {
-        const grd = ctx.createLinearGradient(0, 0, 1080, 1920); grd.addColorStop(0, '#0f172a'); grd.addColorStop(1, '#1e293b');
-        ctx.fillStyle = grd; ctx.fillRect(0, 0, 1080, 1920);
-        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 65px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('EXCLUSIVE DEAL', 540, 100);
-        ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 50; ctx.fillStyle = '#ffffff'; drawRoundRect(ctx, 80, 180, 920, 1360, 40); ctx.fill(); ctx.shadowColor = 'transparent';
-      } else {
-        ctx.fillStyle = '#f8fafc'; ctx.fillRect(0, 0, 1080, 1920);
-        ctx.fillStyle = '#0f172a'; ctx.font = 'bold 65px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('EXCLUSIVE DEAL', 540, 100);
-        ctx.shadowColor = 'rgba(0,0,0,0.08)'; ctx.shadowBlur = 40; ctx.fillStyle = '#ffffff'; drawRoundRect(ctx, 80, 180, 920, 1360, 40); ctx.fill(); ctx.shadowColor = 'transparent';
+      // --- THEME DICTIONARY ---
+      let theme = {
+        bg1: '#0f172a', bg2: '#1e293b', headerText: '#ffffff',
+        cardBg: '#ffffff', cardShadow: 'rgba(0,0,0,0.5)', cardStroke: null,
+        textMain: '#0f172a', textMuted: '#64748b',
+        effBoxBg: '#0f172a', effBoxStroke: null, effLabel: '#94a3b8', effValue: '#ffffff',
+        storeText: '#ffffff'
+      };
+
+      if (templateId === 'light') {
+        theme = {
+          bg1: '#f8fafc', bg2: '#f1f5f9', headerText: '#0f172a',
+          cardBg: '#ffffff', cardShadow: 'rgba(0,0,0,0.05)', cardStroke: null,
+          textMain: '#0f172a', textMuted: '#64748b',
+          effBoxBg: '#f1f5f9', effBoxStroke: null, effLabel: '#64748b', effValue: '#0f172a',
+          storeText: '#0f172a'
+        };
+      } else if (templateId === 'brand') {
+        theme = {
+          bg1: '#1e3a8a', bg2: '#1d4ed8', headerText: '#ffffff',
+          cardBg: '#ffffff', cardShadow: 'rgba(0,0,0,0.4)', cardStroke: null,
+          textMain: '#1e3a8a', textMuted: '#64748b',
+          effBoxBg: '#eff6ff', effBoxStroke: '#1d4ed8', effLabel: '#1d4ed8', effValue: '#1e3a8a',
+          storeText: '#ffffff'
+        };
+      } else if (templateId === 'minimal') {
+        theme = {
+          bg1: '#ffffff', bg2: '#f4f4f5', headerText: '#171717',
+          cardBg: '#ffffff', cardShadow: 'transparent', cardStroke: '#e5e5e5',
+          textMain: '#171717', textMuted: '#737373',
+          effBoxBg: '#ffffff', effBoxStroke: '#e5e5e5', effLabel: '#a3a3a3', effValue: '#171717',
+          storeText: '#171717'
+        };
+      } else if (templateId === 'neon') {
+        theme = {
+          bg1: '#09090b', bg2: '#2e1065', headerText: '#ec4899',
+          cardBg: '#ffffff', cardShadow: 'rgba(6, 182, 212, 0.4)', cardStroke: '#06b6d4',
+          textMain: '#2e1065', textMuted: '#64748b',
+          effBoxBg: '#2e1065', effBoxStroke: '#ec4899', effLabel: '#c084fc', effValue: '#22d3ee',
+          storeText: '#22d3ee'
+        };
+      } else if (templateId === 'premium') {
+        theme = {
+          bg1: '#171717', bg2: '#262626', headerText: '#fbbf24',
+          cardBg: '#ffffff', cardShadow: 'rgba(251, 191, 36, 0.15)', cardStroke: '#fbbf24',
+          textMain: '#171717', textMuted: '#525252',
+          effBoxBg: '#171717', effBoxStroke: '#fbbf24', effLabel: '#fbbf24', effValue: '#ffffff',
+          storeText: '#fbbf24'
+        };
       }
 
+      // Background
+      const grd = ctx.createLinearGradient(0, 0, 1080, 1920); 
+      grd.addColorStop(0, theme.bg1); grd.addColorStop(1, theme.bg2);
+      ctx.fillStyle = grd; ctx.fillRect(0, 0, 1080, 1920);
+
+      // Header Text
+      ctx.fillStyle = theme.headerText; ctx.font = 'bold 65px sans-serif'; ctx.textAlign = 'center'; 
+      ctx.fillText('EXCLUSIVE DEAL', 540, 100);
+
+      // Main White Card
+      ctx.shadowColor = theme.cardShadow; ctx.shadowBlur = theme.cardShadow !== 'transparent' ? 50 : 0; 
+      ctx.fillStyle = theme.cardBg; 
+      drawRoundRect(ctx, 80, 180, 920, 1360, 40); ctx.fill(); 
+      if (theme.cardStroke) {
+        ctx.lineWidth = 4; ctx.strokeStyle = theme.cardStroke; ctx.stroke();
+      }
+      ctx.shadowColor = 'transparent';
+
+      // Image
       let cY = 220;
       if (imgObj) {
         let dW = imgObj.width; let dH = imgObj.height;
@@ -816,15 +888,18 @@ export default function App() {
         ctx.drawImage(imgObj, 540 - (dW/2), cY, dW, dH); cY += dH + 30;
       } else cY = 300;
       
-      ctx.fillStyle = '#0f172a'; ctx.font = 'bold 45px sans-serif'; ctx.textAlign = 'center';
+      // Title
+      ctx.fillStyle = theme.textMain; ctx.font = 'bold 45px sans-serif'; ctx.textAlign = 'center';
       cY += drawWrappedText(ctx, posterTitle, 540, cY, 850, 55, 'center') + 50;
       
-      ctx.fillStyle = templateId === 'default' ? '#94a3b8' : '#64748b'; ctx.font = 'bold 30px sans-serif'; 
+      // MOP
+      ctx.fillStyle = theme.textMuted; ctx.font = 'bold 30px sans-serif'; 
       ctx.fillText(`MOP: ${phone.mop}`, 540, cY); cY += 50;
 
+      // Discounts Breakdown
       const drawDiscountLine = (label, rawVal) => {
         if (isValidDiscount(rawVal)) {
-            ctx.fillStyle = templateId === 'default' ? '#cbd5e1' : '#475569';
+            ctx.fillStyle = theme.textMuted;
             ctx.font = 'bold 26px sans-serif';
             ctx.textAlign = 'right';
             ctx.fillText(`${label}: `, 520, cY);
@@ -839,8 +914,6 @@ export default function App() {
       };
 
       cY += 10; 
-      
-      // --- SMART OR LOGIC FOR POSTER ---
       const hasUpg = isValidDiscount(phone.upgrade);
       const hasBank = isValidDiscount(phone.bank);
       const isCombo = isComboOffer(phone.specialUpgrade);
@@ -849,7 +922,7 @@ export default function App() {
       drawDiscountLine('Upgrade Bonus', phone.upgrade);
       
       if (hasUpg && hasBank && !isCombo) {
-          ctx.fillStyle = templateId === 'default' ? '#64748b' : '#94a3b8';
+          ctx.fillStyle = theme.textMuted;
           ctx.font = 'bold 20px sans-serif';
           ctx.textAlign = 'center';
           ctx.fillText('--- OR ---', 540, cY - 10);
@@ -859,19 +932,20 @@ export default function App() {
       drawDiscountLine('Bank Offer', phone.bank);
       drawDiscountLine('Special', phone.specialUpgrade);
 
-      if (templateId === 'default') {
-        ctx.fillStyle = '#0f172a'; drawRoundRect(ctx, 140, 1290, 800, 180, 30); ctx.fill();
-        ctx.fillStyle = '#94a3b8'; ctx.font = 'bold 24px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('EFFECTIVE PRICE', 540, 1345);
-        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 90px sans-serif'; ctx.fillText(phone.effectivePrice, 540, 1430);
-      } else {
-        ctx.fillStyle = '#f1f5f9'; drawRoundRect(ctx, 140, 1290, 800, 180, 30); ctx.fill();
-        ctx.fillStyle = '#64748b'; ctx.font = 'bold 24px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('EFFECTIVE PRICE', 540, 1345);
-        ctx.fillStyle = '#0f172a'; ctx.font = 'bold 90px sans-serif'; ctx.fillText(phone.effectivePrice, 540, 1430);
+      // Effective Price Box
+      ctx.fillStyle = theme.effBoxBg; 
+      drawRoundRect(ctx, 140, 1290, 800, 180, 30); ctx.fill();
+      if (theme.effBoxStroke) {
+        ctx.lineWidth = 4; ctx.strokeStyle = theme.effBoxStroke; ctx.stroke();
       }
 
-      ctx.fillStyle = '#475569'; ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Visit at', 540, 1630);
+      ctx.fillStyle = theme.effLabel; ctx.font = 'bold 24px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('EFFECTIVE PRICE', 540, 1345);
+      ctx.fillStyle = theme.effValue; ctx.font = 'bold 90px sans-serif'; ctx.fillText(phone.effectivePrice, 540, 1430);
+
+      // Store Footer
+      ctx.fillStyle = theme.textMuted; ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Visit at', 540, 1630);
       let sText = storeName ? storeName.toUpperCase() : 'STORE';
-      ctx.font = 'bold 42px sans-serif'; ctx.fillStyle = templateId==='default'?'#ffffff':'#0f172a'; ctx.fillText(sText, 540, 1680);
+      ctx.font = 'bold 42px sans-serif'; ctx.fillStyle = theme.storeText; ctx.fillText(sText, 540, 1680);
 
       const link = document.createElement('a'); link.download = `Offer_${sn.main.replace(/\s+/g,'_')}.jpg`;
       link.href = canvas.toDataURL('image/jpeg', 0.95); link.click();
@@ -931,8 +1005,8 @@ export default function App() {
                 <div className="col-span-1 pt-12 text-[10px] font-bold text-slate-400 uppercase text-center">Models</div>
                 {compareList.map(p => (
                   <div key={p.id} className="col-span-1 flex flex-col items-center text-center gap-1.5">
-                    <div className="w-12 h-12 bg-white rounded-xl p-1.5 border border-slate-100 flex items-center justify-center">
-                      {p.imageUrl ? <img src={p.imageUrl} className="max-h-full object-contain" alt=""/> : <Phone className="text-slate-300" size={18}/>}
+                    <div className="w-14 h-14 bg-white rounded-xl p-0.5 border border-slate-100 flex items-center justify-center overflow-hidden">
+                      {p.imageUrl ? <img src={p.imageUrl} className="w-full h-full object-contain scale-110" alt=""/> : <CustomSamsungIcon className="text-slate-300" size={24}/>}
                     </div>
                     <span className="text-[10px] sm:text-[11px] font-bold text-slate-900 leading-tight break-words px-1">{splitModelName(p.model).main}</span>
                     <button onClick={() => handleToggleCompare(p)} className="text-[9px] text-red-500 font-bold bg-red-50 px-2.5 py-1 rounded-full mt-1">Remove</button>
@@ -962,22 +1036,45 @@ export default function App() {
 
       {templateModalPhone && calculatorData === null && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="bg-white rounded-[24px] w-full max-w-[340px] overflow-hidden shadow-2xl relative">
-            <div className="p-5 text-center border-b border-slate-100">
-              <h3 className="text-[16px] font-black text-slate-900">Poster Design</h3>
+          <div className="bg-white rounded-[24px] w-full max-w-[340px] overflow-hidden shadow-2xl relative flex flex-col max-h-[85vh]">
+            <div className="p-4 text-center border-b border-slate-100 shrink-0">
+              <h3 className="text-[16px] font-black text-slate-900">Select Poster Style</h3>
             </div>
-            <div className="p-5 grid grid-cols-2 gap-4 bg-slate-50">
-              <button onClick={() => handleGenerateImage(templateModalPhone, 'default')} className="flex flex-col items-center p-3.5 bg-white border border-slate-200 rounded-xl hover:border-slate-800 transition-all">
-                <div className="w-full h-14 rounded-lg bg-slate-800 mb-2.5"></div>
-                <span className="text-[11px] font-bold text-slate-700">Dark Mode</span>
+            
+            <div className="p-4 grid grid-cols-2 gap-3 bg-slate-50 overflow-y-auto hide-scrollbar">
+              <button onClick={() => handleGenerateImage(templateModalPhone, 'default')} className="flex flex-col items-center p-3 bg-white border border-slate-200 rounded-xl hover:border-slate-800 transition-all shadow-sm">
+                <div className="w-full h-12 rounded-lg bg-slate-800 mb-2 border border-slate-700 flex items-center justify-center"><div className="w-8 h-6 bg-white rounded-sm opacity-90"></div></div>
+                <span className="text-[11px] font-bold text-slate-700">Dark Slate</span>
               </button>
-              <button onClick={() => handleGenerateImage(templateModalPhone, 'light')} className="flex flex-col items-center p-3.5 bg-white border border-slate-200 rounded-xl hover:border-indigo-500 transition-all">
-                <div className="w-full h-14 rounded-lg bg-slate-100 border border-slate-200 mb-2.5"></div>
-                <span className="text-[11px] font-bold text-slate-700">Light Mode</span>
+              
+              <button onClick={() => handleGenerateImage(templateModalPhone, 'light')} className="flex flex-col items-center p-3 bg-white border border-slate-200 rounded-xl hover:border-slate-400 transition-all shadow-sm">
+                <div className="w-full h-12 rounded-lg bg-slate-100 mb-2 border border-slate-200 flex items-center justify-center"><div className="w-8 h-6 bg-white rounded-sm shadow-sm border border-slate-100"></div></div>
+                <span className="text-[11px] font-bold text-slate-700">Clean Light</span>
+              </button>
+
+              <button onClick={() => handleGenerateImage(templateModalPhone, 'brand')} className="flex flex-col items-center p-3 bg-white border border-slate-200 rounded-xl hover:border-blue-600 transition-all shadow-sm">
+                <div className="w-full h-12 rounded-lg bg-blue-700 mb-2 border border-blue-800 flex items-center justify-center"><div className="w-8 h-6 bg-white rounded-sm opacity-90"></div></div>
+                <span className="text-[11px] font-bold text-slate-700">Brand Blue</span>
+              </button>
+
+              <button onClick={() => handleGenerateImage(templateModalPhone, 'minimal')} className="flex flex-col items-center p-3 bg-white border border-slate-200 rounded-xl hover:border-slate-400 transition-all shadow-sm">
+                <div className="w-full h-12 rounded-lg bg-white mb-2 border-2 border-slate-200 flex items-center justify-center"><div className="w-8 h-6 bg-white rounded-sm border border-slate-200"></div></div>
+                <span className="text-[11px] font-bold text-slate-700">Minimalist</span>
+              </button>
+
+              <button onClick={() => handleGenerateImage(templateModalPhone, 'neon')} className="flex flex-col items-center p-3 bg-white border border-slate-200 rounded-xl hover:border-cyan-500 transition-all shadow-sm">
+                <div className="w-full h-12 rounded-lg bg-zinc-900 mb-2 border border-purple-900 flex items-center justify-center"><div className="w-8 h-6 bg-white rounded-sm border border-cyan-400"></div></div>
+                <span className="text-[11px] font-bold text-slate-700">Neon Cyber</span>
+              </button>
+
+              <button onClick={() => handleGenerateImage(templateModalPhone, 'premium')} className="flex flex-col items-center p-3 bg-white border border-slate-200 rounded-xl hover:border-amber-500 transition-all shadow-sm">
+                <div className="w-full h-12 rounded-lg bg-black mb-2 border border-zinc-800 flex items-center justify-center"><div className="w-8 h-6 bg-white rounded-sm border border-amber-400"></div></div>
+                <span className="text-[11px] font-bold text-slate-700">Premium Gold</span>
               </button>
             </div>
-            <div className="p-4 bg-white border-t border-slate-100">
-              <button onClick={() => setTemplateModalPhone(null)} className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-[12px]">Cancel</button>
+
+            <div className="p-3 bg-white border-t border-slate-100 shrink-0">
+              <button onClick={() => setTemplateModalPhone(null)} className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-[12px] transition-colors">Cancel</button>
             </div>
           </div>
         </div>
@@ -1114,5 +1211,6 @@ export default function App() {
     </div>
   );
 }
+
 
 
