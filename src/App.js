@@ -11,13 +11,10 @@ import {
 // ==========================================
 const CustomSamsungIcon = ({ size = 20, className = "" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    {/* Phone Body */}
     <rect x="4.5" y="1.5" width="15" height="21" rx="3.5" stroke="currentColor" strokeWidth="1.5"/>
-    {/* Camera Module (Samsung Signature 3 vertical lenses) */}
     <circle cx="8.5" cy="5.5" r="1.2" fill="currentColor" />
     <circle cx="8.5" cy="9" r="1.2" fill="currentColor" />
     <circle cx="8.5" cy="12.5" r="1.2" fill="currentColor" />
-    {/* Flash */}
     <circle cx="11.5" cy="7" r="0.7" fill="currentColor" />
   </svg>
 );
@@ -123,10 +120,9 @@ const PhoneCard = memo(({ phone, isExpanded, isSelectedForCompare, onToggleExpan
       )}
 
       <div onClick={() => onToggleExpand(phone.id)} className="flex justify-between items-center p-3.5 sm:p-4 cursor-pointer">
-        <div className="flex items-center gap-3 w-[72%] pr-2">
-          
-          {/* UPDATED IMAGE CONTAINER: Bada size, almost zero padding, auto zoom */}
-          <div className="w-14 h-14 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 border border-slate-100 p-0.5 shadow-inner overflow-hidden">
+        <div className="flex items-center gap-3.5 w-[72%] pr-2">
+          {/* Image Container */}
+          <div className="w-14 h-14 rounded-xl bg-white flex items-center justify-center shrink-0 border border-slate-100 p-1 shadow-sm overflow-hidden">
             {phone.imageUrl ? (
               <img src={phone.imageUrl} alt="" loading="lazy" className="w-full h-full object-contain scale-110" />
             ) : (
@@ -134,28 +130,30 @@ const PhoneCard = memo(({ phone, isExpanded, isSelectedForCompare, onToggleExpan
             )}
           </div>
           
-          <div className="flex flex-col min-w-0 justify-center py-0.5">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-500 leading-none mb-1">
+          {/* Text Container */}
+          <div className="flex flex-col min-w-0 justify-center">
+            <span className="text-[10px] font-extrabold uppercase tracking-widest text-indigo-600 leading-none mb-1.5">
               {phone.modelCode}
             </span>
-            <h3 className="text-[14px] sm:text-[15px] font-extrabold text-slate-900 leading-tight break-words">
+            <h3 className="text-[15px] font-black text-slate-900 leading-tight break-words">
               {parsedName.main}
             </h3>
             {parsedName.sub && (
-              <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 leading-tight mt-0.5 break-words">
+              <span className="text-[11px] font-bold text-slate-500 leading-tight mt-0.5 break-words">
                 {parsedName.sub}
               </span>
             )}
           </div>
-
         </div>
+
+        {/* MOP & Arrow Container */}
         <div className="flex items-center gap-3 shrink-0">
           <div className="text-right">
             <p className="text-[10px] font-bold uppercase text-slate-400 leading-none mb-1">MOP</p>
-            <p className="text-[15px] sm:text-[16px] font-black text-slate-900 leading-none tracking-tight">{phone.mop}</p>
+            <p className="text-[16px] font-black text-slate-900 leading-none tracking-tight">{phone.mop}</p>
           </div>
-          <div className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300 ${isExpanded ? 'bg-indigo-50 text-indigo-600 rotate-180' : 'bg-slate-50 text-slate-400 border border-slate-200 rotate-0'}`}>
-            <ChevronDown size={16} strokeWidth={2.5} />
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${isExpanded ? 'bg-indigo-50 text-indigo-600 rotate-180' : 'bg-slate-50 text-slate-400 border border-slate-200 rotate-0'}`}>
+            <ChevronDown size={18} strokeWidth={2.5} />
           </div>
         </div>
       </div>
@@ -189,7 +187,7 @@ const PhoneCard = memo(({ phone, isExpanded, isSelectedForCompare, onToggleExpan
                 </div>
               )}
 
-              {/* --- OR DIVIDER Logic --- */}
+              {/* OR DIVIDER */}
               {hasUpg && hasBank && !isCombo && (
                 <div className="flex items-center justify-center py-0.5 opacity-40">
                   <div className="h-px bg-slate-400 w-8"></div>
@@ -222,6 +220,30 @@ const PhoneCard = memo(({ phone, isExpanded, isSelectedForCompare, onToggleExpan
               )}
             </div>
           </div>
+
+          {/* GIFT & REMARKS SECTION */}
+          {(phone.gift || phone.remarks) && (
+            <div className="bg-amber-50/70 border border-amber-100/80 rounded-xl p-3.5 mb-3.5 space-y-2.5">
+              {phone.gift && (
+                <div className="flex items-start gap-2.5">
+                  <Gift size={16} className="text-amber-500 mt-0.5 shrink-0" />
+                  <div className="flex flex-col">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-amber-600 mb-0.5">Customer Gift</span>
+                    <span className="text-[12px] font-bold text-amber-900 leading-tight">{phone.gift}</span>
+                  </div>
+                </div>
+              )}
+              {phone.remarks && (
+                <div className={`flex items-start gap-2.5 ${phone.gift ? 'pt-2.5 border-t border-amber-200/50' : ''}`}>
+                  <AlertCircle size={16} className="text-blue-500 mt-0.5 shrink-0" />
+                  <div className="flex flex-col">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-blue-600 mb-0.5">Remarks / Note</span>
+                    <span className="text-[12px] font-bold text-blue-900 leading-tight">{phone.remarks}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl py-3 px-4 text-center shadow-md relative overflow-hidden mb-3.5">
             <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-300 mb-0.5 relative z-10">Effective Price</p>
@@ -306,9 +328,7 @@ const NlcCalculator = memo(({ onClose, initialData }) => {
       const spclUpNum = parsePriceToNumber(splitAmountAndDesc(initialData.specialUpgrade).amount);
       const bnkNum = parsePriceToNumber(splitAmountAndDesc(initialData.bank).amount);
       
-      // --- SMART LOGIC FOR UPGRADE VS BANK ---
       const isCombo = isComboOffer(initialData.specialUpgrade);
-      
       if (isCombo) {
           const totalUpgBank = upgNum + spclUpNum + bnkNum;
           setUpgradeCb(totalUpgBank > 0 ? totalUpgBank.toString() : '');
@@ -754,16 +774,14 @@ export default function App() {
     const isCombo = isComboOffer(phone.specialUpgrade);
 
     if (hasUpg) { const p = splitAmountAndDesc(phone.upgrade); txt += `🔄 Upgrade: - ${formatSafePrice(p.amount)}\n`; if(p.desc) txt += `   ↳ _(${p.desc})_\n`; }
-    
-    if (hasUpg && hasBank && !isCombo) {
-        txt += `   *--- OR ---*\n`;
-    }
-
+    if (hasUpg && hasBank && !isCombo) { txt += `   *--- OR ---*\n`; }
     if (hasBank) { const p = splitAmountAndDesc(phone.bank); txt += `💳 Bank: - ${formatSafePrice(p.amount)}\n`; if(p.desc) txt += `   ↳ _(${p.desc})_\n`; }
-    
     if (isValidDiscount(phone.specialUpgrade)) { const p = splitAmountAndDesc(phone.specialUpgrade); txt += `⚡ Special: ${formatSafePrice(p.amount)}\n`; if(p.desc) txt += `   ↳ _(${p.desc})_\n`; }
     
-    txt += `🔥 *Effective Price: ${phone.effectivePrice}*\n\n`;
+    if (phone.gift) txt += `🎁 *Gift:* ${phone.gift}\n`;
+    if (phone.remarks) txt += `📝 *Note:* ${phone.remarks}\n`;
+
+    txt += `\n🔥 *Effective Price: ${phone.effectivePrice}*\n\n`;
     if (storeName && storeName.trim()) txt += `📍 *Visit at:* ${storeName.trim()}\n`;
     txt += `\n*(Note: Prices subject to change. Verify before finalizing.)*`;
     return txt;
@@ -784,6 +802,7 @@ export default function App() {
   const handleOpenTemplateModal = useCallback((phone) => setTemplateModalPhone(phone), []);
   const handleOpenCalculator = useCallback((phone) => setCalculatorData(phone), []);
 
+  // --- 🌟 PREMIUM POSTER ENGINE 🌟 ---
   const handleGenerateImage = async (phone, templateId) => {
     setTemplateModalPhone(null); setIsGeneratingImg(phone.id);
     try {
@@ -799,153 +818,186 @@ export default function App() {
         ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h); ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r); ctx.lineTo(x, y+r);
         ctx.quadraticCurveTo(x, y, x+r, y); ctx.closePath();
       };
-      const drawWrappedText = (ctx, text, x, y, maxW, lh, align='left') => {
+      
+      const drawWrappedText = (ctx, text, x, y, maxW, lh, align='center') => {
         const words = String(text).split(' '); let line = ''; let lines = [];
         for (let i = 0; i < words.length; i++) {
           const test = line + words[i] + ' '; if (ctx.measureText(test).width > maxW && i > 0) { lines.push(line.trim()); line = words[i] + ' '; } else line = test;
         }
-        lines.push(line.trim()); lines.forEach((l, i) => { ctx.textAlign = align; ctx.fillText(l, x, y + (i * lh)); });
-        return (lines.length - 1) * lh;
+        lines.push(line.trim()); 
+        lines.forEach((l, i) => { ctx.textAlign = align; ctx.fillText(l, x, y + (i * lh)); });
+        return (lines.length) * lh;
       };
 
       const sn = splitModelName(phone.model);
-      const posterTitle = sn.sub ? `${sn.main} ${sn.sub}` : sn.main;
+      const sText = storeName ? storeName.toUpperCase() : 'SAMSUNG STORE';
+
+      const dList = [];
+      if(isValidDiscount(phone.sellOut)) dList.push({label: 'Sellout Support', val: formatSafePrice(splitAmountAndDesc(phone.sellOut).amount)});
       
-      // --- THEME DICTIONARY ---
-      let theme = {
-        bg1: '#0f172a', bg2: '#1e293b', headerText: '#ffffff',
-        cardBg: '#ffffff', cardShadow: 'rgba(0,0,0,0.5)', cardStroke: null,
-        textMain: '#0f172a', textMuted: '#64748b',
-        effBoxBg: '#0f172a', effBoxStroke: null, effLabel: '#94a3b8', effValue: '#ffffff',
-        storeText: '#ffffff'
-      };
-
-      if (templateId === 'light') {
-        theme = {
-          bg1: '#f8fafc', bg2: '#f1f5f9', headerText: '#0f172a',
-          cardBg: '#ffffff', cardShadow: 'rgba(0,0,0,0.05)', cardStroke: null,
-          textMain: '#0f172a', textMuted: '#64748b',
-          effBoxBg: '#f1f5f9', effBoxStroke: null, effLabel: '#64748b', effValue: '#0f172a',
-          storeText: '#0f172a'
-        };
-      } else if (templateId === 'brand') {
-        theme = {
-          bg1: '#1e3a8a', bg2: '#1d4ed8', headerText: '#ffffff',
-          cardBg: '#ffffff', cardShadow: 'rgba(0,0,0,0.4)', cardStroke: null,
-          textMain: '#1e3a8a', textMuted: '#64748b',
-          effBoxBg: '#eff6ff', effBoxStroke: '#1d4ed8', effLabel: '#1d4ed8', effValue: '#1e3a8a',
-          storeText: '#ffffff'
-        };
-      } else if (templateId === 'minimal') {
-        theme = {
-          bg1: '#ffffff', bg2: '#f4f4f5', headerText: '#171717',
-          cardBg: '#ffffff', cardShadow: 'transparent', cardStroke: '#e5e5e5',
-          textMain: '#171717', textMuted: '#737373',
-          effBoxBg: '#ffffff', effBoxStroke: '#e5e5e5', effLabel: '#a3a3a3', effValue: '#171717',
-          storeText: '#171717'
-        };
-      } else if (templateId === 'neon') {
-        theme = {
-          bg1: '#09090b', bg2: '#2e1065', headerText: '#ec4899',
-          cardBg: '#ffffff', cardShadow: 'rgba(6, 182, 212, 0.4)', cardStroke: '#06b6d4',
-          textMain: '#2e1065', textMuted: '#64748b',
-          effBoxBg: '#2e1065', effBoxStroke: '#ec4899', effLabel: '#c084fc', effValue: '#22d3ee',
-          storeText: '#22d3ee'
-        };
-      } else if (templateId === 'premium') {
-        theme = {
-          bg1: '#171717', bg2: '#262626', headerText: '#fbbf24',
-          cardBg: '#ffffff', cardShadow: 'rgba(251, 191, 36, 0.15)', cardStroke: '#fbbf24',
-          textMain: '#171717', textMuted: '#525252',
-          effBoxBg: '#171717', effBoxStroke: '#fbbf24', effLabel: '#fbbf24', effValue: '#ffffff',
-          storeText: '#fbbf24'
-        };
-      }
-
-      // Background
-      const grd = ctx.createLinearGradient(0, 0, 1080, 1920); 
-      grd.addColorStop(0, theme.bg1); grd.addColorStop(1, theme.bg2);
-      ctx.fillStyle = grd; ctx.fillRect(0, 0, 1080, 1920);
-
-      // Header Text
-      ctx.fillStyle = theme.headerText; ctx.font = 'bold 65px sans-serif'; ctx.textAlign = 'center'; 
-      ctx.fillText('EXCLUSIVE DEAL', 540, 100);
-
-      // Main White Card
-      ctx.shadowColor = theme.cardShadow; ctx.shadowBlur = theme.cardShadow !== 'transparent' ? 50 : 0; 
-      ctx.fillStyle = theme.cardBg; 
-      drawRoundRect(ctx, 80, 180, 920, 1360, 40); ctx.fill(); 
-      if (theme.cardStroke) {
-        ctx.lineWidth = 4; ctx.strokeStyle = theme.cardStroke; ctx.stroke();
-      }
-      ctx.shadowColor = 'transparent';
-
-      // Image
-      let cY = 220;
-      if (imgObj) {
-        let dW = imgObj.width; let dH = imgObj.height;
-        if (dW > 450 || dH > 260) { const ratio = Math.min(450/dW, 260/dH); dW *= ratio; dH *= ratio; }
-        ctx.drawImage(imgObj, 540 - (dW/2), cY, dW, dH); cY += dH + 30;
-      } else cY = 300;
-      
-      // Title
-      ctx.fillStyle = theme.textMain; ctx.font = 'bold 45px sans-serif'; ctx.textAlign = 'center';
-      cY += drawWrappedText(ctx, posterTitle, 540, cY, 850, 55, 'center') + 50;
-      
-      // MOP
-      ctx.fillStyle = theme.textMuted; ctx.font = 'bold 30px sans-serif'; 
-      ctx.fillText(`MOP: ${phone.mop}`, 540, cY); cY += 50;
-
-      // Discounts Breakdown
-      const drawDiscountLine = (label, rawVal) => {
-        if (isValidDiscount(rawVal)) {
-            ctx.fillStyle = theme.textMuted;
-            ctx.font = 'bold 26px sans-serif';
-            ctx.textAlign = 'right';
-            ctx.fillText(`${label}: `, 520, cY);
-            
-            ctx.fillStyle = label === 'Special' ? '#f59e0b' : '#10b981'; 
-            ctx.textAlign = 'left';
-            let formattedAmt = formatSafePrice(splitAmountAndDesc(rawVal).amount);
-            if (label !== 'Special' && !formattedAmt.includes('-')) formattedAmt = '- ' + formattedAmt;
-            ctx.fillText(formattedAmt, 540, cY);
-            cY += 40;
-        }
-      };
-
-      cY += 10; 
       const hasUpg = isValidDiscount(phone.upgrade);
       const hasBank = isValidDiscount(phone.bank);
       const isCombo = isComboOffer(phone.specialUpgrade);
 
-      drawDiscountLine('Sellout Support', phone.sellOut);
-      drawDiscountLine('Upgrade Bonus', phone.upgrade);
+      if(hasUpg) dList.push({label: 'Upgrade Bonus', val: formatSafePrice(splitAmountAndDesc(phone.upgrade).amount)});
+      if(hasUpg && hasBank && !isCombo) dList.push({label: 'OR_DIVIDER', val: ''});
+      if(hasBank) dList.push({label: 'Bank Offer', val: formatSafePrice(splitAmountAndDesc(phone.bank).amount)});
+      if(isValidDiscount(phone.specialUpgrade)) dList.push({label: 'Special Offer', val: formatSafePrice(splitAmountAndDesc(phone.specialUpgrade).amount)});
+
+      // THEMES: Center Dark & Center Light
+      if (templateId === 'center-dark' || templateId === 'center-light') {
+        const isDark = templateId === 'center-dark';
+        
+        ctx.fillStyle = isDark ? '#000000' : '#f8fafc'; ctx.fillRect(0, 0, 1080, 1920);
+        if(isDark) {
+            const grd = ctx.createLinearGradient(0,0,1080,1920); grd.addColorStop(0, '#020617'); grd.addColorStop(1, '#1e1b4b');
+            ctx.fillStyle = grd; ctx.fillRect(0,0,1080,1920);
+        }
+
+        ctx.fillStyle = isDark ? '#ffffff' : '#0f172a'; ctx.font = 'bold 70px sans-serif'; ctx.textAlign = 'center'; 
+        ctx.fillText('SAMSUNG GALAXY', 540, 110);
+
+        ctx.shadowColor = isDark ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.08)'; ctx.shadowBlur = 60; 
+        ctx.fillStyle = '#ffffff'; drawRoundRect(ctx, 50, 160, 980, 1460, 50); ctx.fill(); ctx.shadowColor = 'transparent';
+
+        // Much bigger image logic
+        let cY = 220;
+        if (imgObj) {
+          let dW = imgObj.width; let dH = imgObj.height;
+          // Massive max bounds for image
+          const maxW = 750; const maxH = 650;
+          if (dW > maxW || dH > maxH) { const ratio = Math.min(maxW/dW, maxH/dH); dW *= ratio; dH *= ratio; }
+          ctx.drawImage(imgObj, 540 - (dW/2), cY, dW, dH); cY += dH + 50;
+        } else { cY += 500 + 50; }
+
+        // Bolder, bigger text
+        ctx.fillStyle = '#0f172a'; ctx.font = 'bold 75px sans-serif'; ctx.textAlign = 'center';
+        cY += drawWrappedText(ctx, sn.main, 540, cY, 880, 85, 'center') + 10;
+        
+        if (sn.sub) {
+          ctx.fillStyle = '#64748b'; ctx.font = 'bold 40px sans-serif'; 
+          cY += drawWrappedText(ctx, sn.sub, 540, cY, 880, 50, 'center') + 30;
+        } else { cY += 20; }
+
+        ctx.fillStyle = '#334155'; ctx.font = 'bold 45px sans-serif'; ctx.fillText(`MOP: ${phone.mop}`, 540, cY); cY += 70;
+
+        dList.forEach(d => {
+          if(d.label === 'OR_DIVIDER') {
+            ctx.fillStyle = '#cbd5e1'; ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText('--- OR ---', 540, cY); cY += 45;
+          } else {
+            ctx.fillStyle = '#64748b'; ctx.font = 'bold 32px sans-serif'; ctx.textAlign = 'right'; ctx.fillText(`${d.label}: `, 520, cY);
+            ctx.fillStyle = d.label === 'Special Offer' ? '#f59e0b' : '#059669'; ctx.textAlign = 'left'; 
+            let v = d.val; if(d.label !== 'Special Offer' && !v.includes('-')) v = '- ' + v;
+            ctx.fillText(v, 540, cY); cY += 50;
+          }
+        });
+
+        // Price block
+        ctx.fillStyle = isDark ? '#0f172a' : '#f1f5f9'; drawRoundRect(ctx, 100, 1380, 880, 200, 40); ctx.fill();
+        ctx.fillStyle = isDark ? '#94a3b8' : '#64748b'; ctx.font = 'bold 28px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('NET EFFECTIVE PRICE', 540, 1445);
+        ctx.fillStyle = isDark ? '#ffffff' : '#0f172a'; ctx.font = 'bold 110px sans-serif'; ctx.fillText(phone.effectivePrice, 540, 1545);
+
+        ctx.fillStyle = '#94a3b8'; ctx.font = 'bold 28px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Visit at', 540, 1720);
+        ctx.fillStyle = isDark ? '#ffffff' : '#0f172a'; ctx.font = 'bold 50px sans-serif'; ctx.fillText(sText, 540, 1785);
+      }
       
-      if (hasUpg && hasBank && !isCombo) {
-          ctx.fillStyle = theme.textMuted;
-          ctx.font = 'bold 20px sans-serif';
-          ctx.textAlign = 'center';
-          ctx.fillText('--- OR ---', 540, cY - 10);
-          cY += 25;
+      // THEME: Modern Left
+      else if (templateId === 'modern-left') {
+        ctx.fillStyle = '#1e1b4b'; ctx.fillRect(0, 0, 1080, 1920); 
+        
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 60px sans-serif'; ctx.textAlign = 'left'; 
+        ctx.fillText('SAMSUNG GALAXY', 70, 120);
+
+        let cY = 280;
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 85px sans-serif'; ctx.textAlign = 'left';
+        cY += drawWrappedText(ctx, sn.main, 70, cY, 650, 100, 'left') + 20;
+
+        if (sn.sub) {
+          ctx.fillStyle = '#a5b4fc'; ctx.font = 'bold 40px sans-serif'; 
+          cY += drawWrappedText(ctx, sn.sub, 70, cY, 600, 50, 'left') + 50;
+        } else { cY += 50; }
+
+        ctx.fillStyle = '#818cf8'; ctx.font = 'bold 45px sans-serif'; ctx.fillText(`MOP: ${phone.mop}`, 70, cY); cY += 90;
+
+        dList.forEach(d => {
+          if(d.label === 'OR_DIVIDER') {
+            ctx.fillStyle = '#4f46e5'; ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'left';
+            ctx.fillText('--- OR ---', 70, cY); cY += 55;
+          } else {
+            ctx.fillStyle = '#c7d2fe'; ctx.font = 'bold 30px sans-serif'; ctx.textAlign = 'left'; ctx.fillText(`${d.label}:`, 70, cY);
+            ctx.fillStyle = d.label === 'Special Offer' ? '#fbbf24' : '#34d399'; ctx.textAlign = 'left'; 
+            let v = d.val; if(d.label !== 'Special Offer' && !v.includes('-')) v = '- ' + v;
+            ctx.fillText(v, 70, cY + 45); cY += 110;
+          }
+        });
+
+        // Left layout gets a massively tall image on the right
+        if (imgObj) {
+          let dW = imgObj.width; let dH = imgObj.height;
+          const maxW = 550; const maxH = 900;
+          if (dW > maxW || dH > maxH) { const ratio = Math.min(maxW/dW, maxH/dH); dW *= ratio; dH *= ratio; }
+          ctx.drawImage(imgObj, 1030 - dW, 300, dW, dH);
+        }
+
+        ctx.fillStyle = '#312e81'; drawRoundRect(ctx, 70, 1340, 940, 220, 40); ctx.fill();
+        ctx.fillStyle = '#a5b4fc'; ctx.font = 'bold 28px sans-serif'; ctx.textAlign = 'left'; ctx.fillText('NET EFFECTIVE PRICE', 120, 1415);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 120px sans-serif'; ctx.fillText(phone.effectivePrice, 120, 1515);
+
+        ctx.fillStyle = '#818cf8'; ctx.font = 'bold 30px sans-serif'; ctx.textAlign = 'left'; ctx.fillText('Visit at', 70, 1680);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 50px sans-serif'; ctx.fillText(sText, 70, 1745);
       }
 
-      drawDiscountLine('Bank Offer', phone.bank);
-      drawDiscountLine('Special', phone.specialUpgrade);
+      // THEME: Story Card
+      else if (templateId === 'story-card') {
+        ctx.fillStyle = '#f1f5f9'; ctx.fillRect(0, 0, 1080, 1920); 
+        
+        ctx.shadowColor = 'rgba(0,0,0,0.15)'; ctx.shadowBlur = 40; 
+        ctx.fillStyle = '#ffffff'; drawRoundRect(ctx, 40, 40, 1000, 1840, 50); ctx.fill(); ctx.shadowColor = 'transparent';
 
-      // Effective Price Box
-      ctx.fillStyle = theme.effBoxBg; 
-      drawRoundRect(ctx, 140, 1290, 800, 180, 30); ctx.fill();
-      if (theme.effBoxStroke) {
-        ctx.lineWidth = 4; ctx.strokeStyle = theme.effBoxStroke; ctx.stroke();
+        ctx.fillStyle = '#0f172a'; ctx.font = 'bold 45px sans-serif'; ctx.textAlign = 'center'; 
+        ctx.fillText(sText, 540, 120);
+        
+        ctx.lineWidth = 2; ctx.strokeStyle = '#e2e8f0'; ctx.beginPath(); ctx.moveTo(100, 160); ctx.lineTo(980, 160); ctx.stroke();
+
+        let cY = 220;
+        if (imgObj) {
+          let dW = imgObj.width; let dH = imgObj.height;
+          const maxW = 800; const maxH = 650;
+          if (dW > maxW || dH > maxH) { const ratio = Math.min(maxW/dW, maxH/dH); dW *= ratio; dH *= ratio; }
+          ctx.drawImage(imgObj, 540 - (dW/2), cY, dW, dH); cY += dH + 70;
+        } else { cY += 550 + 70; }
+
+        ctx.fillStyle = '#0f172a'; ctx.font = 'bold 75px sans-serif'; ctx.textAlign = 'center';
+        cY += drawWrappedText(ctx, sn.main, 540, cY, 900, 85, 'center') + 10;
+        
+        if (sn.sub) {
+          ctx.fillStyle = '#64748b'; ctx.font = 'bold 40px sans-serif'; 
+          cY += drawWrappedText(ctx, sn.sub, 540, cY, 900, 50, 'center') + 50;
+        } else { cY += 50; }
+
+        ctx.fillStyle = '#1e293b'; ctx.font = 'bold 45px sans-serif'; ctx.fillText(`MOP: ${phone.mop}`, 540, cY); cY += 70;
+
+        ctx.fillStyle = '#f8fafc'; drawRoundRect(ctx, 80, cY, 920, 360, 30); ctx.fill();
+        ctx.lineWidth = 2; ctx.strokeStyle = '#e2e8f0'; drawRoundRect(ctx, 80, cY, 920, 360, 30); ctx.stroke();
+        
+        cY += 60;
+        dList.forEach(d => {
+          if(d.label === 'OR_DIVIDER') {
+            ctx.fillStyle = '#cbd5e1'; ctx.font = 'bold 24px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText('--- OR ---', 540, cY); cY += 45;
+          } else {
+            ctx.fillStyle = '#64748b'; ctx.font = 'bold 30px sans-serif'; ctx.textAlign = 'right'; ctx.fillText(`${d.label}: `, 520, cY);
+            ctx.fillStyle = d.label === 'Special Offer' ? '#d97706' : '#059669'; ctx.textAlign = 'left'; 
+            let v = d.val; if(d.label !== 'Special Offer' && !v.includes('-')) v = '- ' + v;
+            ctx.fillText(v, 540, cY); cY += 55;
+          }
+        });
+
+        ctx.fillStyle = '#0f172a'; drawRoundRect(ctx, 80, 1550, 920, 220, 40); ctx.fill();
+        ctx.fillStyle = '#94a3b8'; ctx.font = 'bold 30px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('NET EFFECTIVE PRICE', 540, 1625);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 120px sans-serif'; ctx.fillText(phone.effectivePrice, 540, 1725);
       }
-
-      ctx.fillStyle = theme.effLabel; ctx.font = 'bold 24px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('EFFECTIVE PRICE', 540, 1345);
-      ctx.fillStyle = theme.effValue; ctx.font = 'bold 90px sans-serif'; ctx.fillText(phone.effectivePrice, 540, 1430);
-
-      // Store Footer
-      ctx.fillStyle = theme.textMuted; ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Visit at', 540, 1630);
-      let sText = storeName ? storeName.toUpperCase() : 'STORE';
-      ctx.font = 'bold 42px sans-serif'; ctx.fillStyle = theme.storeText; ctx.fillText(sText, 540, 1680);
 
       const link = document.createElement('a'); link.download = `Offer_${sn.main.replace(/\s+/g,'_')}.jpg`;
       link.href = canvas.toDataURL('image/jpeg', 0.95); link.click();
@@ -1005,8 +1057,8 @@ export default function App() {
                 <div className="col-span-1 pt-12 text-[10px] font-bold text-slate-400 uppercase text-center">Models</div>
                 {compareList.map(p => (
                   <div key={p.id} className="col-span-1 flex flex-col items-center text-center gap-1.5">
-                    <div className="w-14 h-14 bg-white rounded-xl p-0.5 border border-slate-100 flex items-center justify-center overflow-hidden">
-                      {p.imageUrl ? <img src={p.imageUrl} className="w-full h-full object-contain scale-110" alt=""/> : <CustomSamsungIcon className="text-slate-300" size={24}/>}
+                    <div className="w-12 h-12 bg-white rounded-xl p-1.5 border border-slate-100 flex items-center justify-center">
+                      {p.imageUrl ? <img src={p.imageUrl} className="max-h-full object-contain" alt=""/> : <CustomSamsungIcon className="text-slate-300" size={18}/>}
                     </div>
                     <span className="text-[10px] sm:text-[11px] font-bold text-slate-900 leading-tight break-words px-1">{splitModelName(p.model).main}</span>
                     <button onClick={() => handleToggleCompare(p)} className="text-[9px] text-red-500 font-bold bg-red-50 px-2.5 py-1 rounded-full mt-1">Remove</button>
@@ -1036,45 +1088,30 @@ export default function App() {
 
       {templateModalPhone && calculatorData === null && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="bg-white rounded-[24px] w-full max-w-[340px] overflow-hidden shadow-2xl relative flex flex-col max-h-[85vh]">
-            <div className="p-4 text-center border-b border-slate-100 shrink-0">
-              <h3 className="text-[16px] font-black text-slate-900">Select Poster Style</h3>
+          <div className="bg-white rounded-[24px] w-full max-w-[340px] overflow-hidden shadow-2xl relative">
+            <div className="p-5 text-center border-b border-slate-100">
+              <h3 className="text-[16px] font-black text-slate-900">Poster Design</h3>
             </div>
-            
-            <div className="p-4 grid grid-cols-2 gap-3 bg-slate-50 overflow-y-auto hide-scrollbar">
-              <button onClick={() => handleGenerateImage(templateModalPhone, 'default')} className="flex flex-col items-center p-3 bg-white border border-slate-200 rounded-xl hover:border-slate-800 transition-all shadow-sm">
-                <div className="w-full h-12 rounded-lg bg-slate-800 mb-2 border border-slate-700 flex items-center justify-center"><div className="w-8 h-6 bg-white rounded-sm opacity-90"></div></div>
-                <span className="text-[11px] font-bold text-slate-700">Dark Slate</span>
+            <div className="p-5 grid grid-cols-2 gap-4 bg-slate-50">
+              <button onClick={() => handleGenerateImage(templateModalPhone, 'center-dark')} className="flex flex-col items-center p-3.5 bg-white border border-slate-200 rounded-xl hover:border-slate-800 transition-all shadow-sm">
+                <div className="w-full h-14 rounded-lg bg-slate-800 mb-2.5 flex flex-col items-center p-1"><div className="w-4 h-4 bg-white/20 rounded-sm mb-1"></div><div className="w-full h-1 bg-white/20 rounded-sm"></div></div>
+                <span className="text-[11px] font-bold text-slate-700">Center Dark</span>
               </button>
-              
-              <button onClick={() => handleGenerateImage(templateModalPhone, 'light')} className="flex flex-col items-center p-3 bg-white border border-slate-200 rounded-xl hover:border-slate-400 transition-all shadow-sm">
-                <div className="w-full h-12 rounded-lg bg-slate-100 mb-2 border border-slate-200 flex items-center justify-center"><div className="w-8 h-6 bg-white rounded-sm shadow-sm border border-slate-100"></div></div>
-                <span className="text-[11px] font-bold text-slate-700">Clean Light</span>
+              <button onClick={() => handleGenerateImage(templateModalPhone, 'center-light')} className="flex flex-col items-center p-3.5 bg-white border border-slate-200 rounded-xl hover:border-indigo-500 transition-all shadow-sm">
+                <div className="w-full h-14 rounded-lg bg-slate-100 border border-slate-200 mb-2.5 flex flex-col items-center p-1"><div className="w-4 h-4 bg-slate-300 rounded-sm mb-1"></div><div className="w-full h-1 bg-slate-300 rounded-sm"></div></div>
+                <span className="text-[11px] font-bold text-slate-700">Center Light</span>
               </button>
-
-              <button onClick={() => handleGenerateImage(templateModalPhone, 'brand')} className="flex flex-col items-center p-3 bg-white border border-slate-200 rounded-xl hover:border-blue-600 transition-all shadow-sm">
-                <div className="w-full h-12 rounded-lg bg-blue-700 mb-2 border border-blue-800 flex items-center justify-center"><div className="w-8 h-6 bg-white rounded-sm opacity-90"></div></div>
-                <span className="text-[11px] font-bold text-slate-700">Brand Blue</span>
+              <button onClick={() => handleGenerateImage(templateModalPhone, 'modern-left')} className="flex flex-col items-center p-3.5 bg-white border border-slate-200 rounded-xl hover:border-indigo-500 transition-all shadow-sm">
+                <div className="w-full h-14 rounded-lg bg-indigo-950 border border-indigo-900 mb-2.5 flex justify-between p-1"><div className="w-1/2 h-full flex flex-col gap-1"><div className="w-full h-2 bg-indigo-400 rounded-sm"></div><div className="w-full h-1 bg-indigo-300 rounded-sm"></div></div><div className="w-1/3 h-full bg-indigo-300/30 rounded-sm"></div></div>
+                <span className="text-[11px] font-bold text-slate-700">Modern Left</span>
               </button>
-
-              <button onClick={() => handleGenerateImage(templateModalPhone, 'minimal')} className="flex flex-col items-center p-3 bg-white border border-slate-200 rounded-xl hover:border-slate-400 transition-all shadow-sm">
-                <div className="w-full h-12 rounded-lg bg-white mb-2 border-2 border-slate-200 flex items-center justify-center"><div className="w-8 h-6 bg-white rounded-sm border border-slate-200"></div></div>
-                <span className="text-[11px] font-bold text-slate-700">Minimalist</span>
-              </button>
-
-              <button onClick={() => handleGenerateImage(templateModalPhone, 'neon')} className="flex flex-col items-center p-3 bg-white border border-slate-200 rounded-xl hover:border-cyan-500 transition-all shadow-sm">
-                <div className="w-full h-12 rounded-lg bg-zinc-900 mb-2 border border-purple-900 flex items-center justify-center"><div className="w-8 h-6 bg-white rounded-sm border border-cyan-400"></div></div>
-                <span className="text-[11px] font-bold text-slate-700">Neon Cyber</span>
-              </button>
-
-              <button onClick={() => handleGenerateImage(templateModalPhone, 'premium')} className="flex flex-col items-center p-3 bg-white border border-slate-200 rounded-xl hover:border-amber-500 transition-all shadow-sm">
-                <div className="w-full h-12 rounded-lg bg-black mb-2 border border-zinc-800 flex items-center justify-center"><div className="w-8 h-6 bg-white rounded-sm border border-amber-400"></div></div>
-                <span className="text-[11px] font-bold text-slate-700">Premium Gold</span>
+              <button onClick={() => handleGenerateImage(templateModalPhone, 'story-card')} className="flex flex-col items-center p-3.5 bg-white border border-slate-200 rounded-xl hover:border-indigo-500 transition-all shadow-sm">
+                <div className="w-full h-14 rounded-lg bg-slate-100 border border-slate-200 mb-2.5 p-1"><div className="w-full h-full bg-white rounded-sm border border-slate-200 shadow-sm flex flex-col items-center p-0.5"><div className="w-full h-1 bg-slate-200 mb-0.5"></div><div className="w-4 h-3 bg-slate-100"></div></div></div>
+                <span className="text-[11px] font-bold text-slate-700">Story Card</span>
               </button>
             </div>
-
-            <div className="p-3 bg-white border-t border-slate-100 shrink-0">
-              <button onClick={() => setTemplateModalPhone(null)} className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-[12px] transition-colors">Cancel</button>
+            <div className="p-4 bg-white border-t border-slate-100">
+              <button onClick={() => setTemplateModalPhone(null)} className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-[12px]">Cancel</button>
             </div>
           </div>
         </div>
@@ -1211,6 +1248,3 @@ export default function App() {
     </div>
   );
 }
-
-
-
