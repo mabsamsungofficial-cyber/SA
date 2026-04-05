@@ -3,11 +3,12 @@ import {
   Search, AlertCircle, RefreshCw, ChevronDown, Tag, Gift, MessageCircle, Copy, 
   ArrowUp, Check, Menu, Calendar, ShieldAlert, Youtube, Zap, Camera, 
   CreditCard, TrendingUp, X, Calculator, Percent, Layers, Box, Wallet, 
-  Minus, Plus, IndianRupee, Star, ChevronLeft, ArrowRight
+  Minus, Plus, IndianRupee, Star, ChevronLeft, ArrowRight, ClipboardList, 
+  Smartphone, Hash
 } from 'lucide-react';
 
 // ==========================================
-// CUSTOM SAMSUNG PHONE ICON (CLEANED)
+// CUSTOM SAMSUNG PHONE ICON
 // ==========================================
 const CustomSamsungIcon = ({ size = 20, className = "" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
@@ -66,18 +67,15 @@ const formatSafePrice = (val) => {
   return str;
 };
 
-// --- SIMPLE SPLIT FUNCTION ---
 const splitModelName = (fullName) => {
   if (!fullName) return { main: '', sub: '' };
   const str = String(fullName).trim();
   const firstParenIndex = str.indexOf('(');
-  
   if (firstParenIndex !== -1) {
     const main = str.substring(0, firstParenIndex).trim();
     const sub = str.substring(firstParenIndex).trim();
     return { main, sub };
   }
-  
   return { main: str, sub: '' };
 };
 
@@ -112,7 +110,6 @@ const PhoneCard = memo(({ phone, isExpanded, isSelectedForCompare, onToggleExpan
 
   return (
     <div className={`bg-white rounded-[20px] transition-all duration-200 relative ${isExpanded ? 'shadow-md border border-slate-200 z-10' : 'shadow-sm border border-slate-100 hover:border-slate-200'}`}>
-      
       {isCombo && (
         <div className="absolute top-0 right-0 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-bl-xl rounded-tr-[19px] z-10 shadow-sm">
           Combo Offer
@@ -121,7 +118,6 @@ const PhoneCard = memo(({ phone, isExpanded, isSelectedForCompare, onToggleExpan
 
       <div onClick={() => onToggleExpand(phone.id)} className="flex justify-between items-center p-3.5 sm:p-4 cursor-pointer">
         <div className="flex items-center gap-3.5 w-[72%] pr-2">
-          {/* Image Container */}
           <div className="w-14 h-14 rounded-xl bg-white flex items-center justify-center shrink-0 border border-slate-100 p-1 shadow-sm overflow-hidden">
             {phone.imageUrl ? (
               <img src={phone.imageUrl} alt="" loading="lazy" className="w-full h-full object-contain scale-110" />
@@ -130,7 +126,6 @@ const PhoneCard = memo(({ phone, isExpanded, isSelectedForCompare, onToggleExpan
             )}
           </div>
           
-          {/* Text Container */}
           <div className="flex flex-col min-w-0 justify-center">
             <span className="text-[10px] font-extrabold uppercase tracking-widest text-indigo-600 leading-none mb-1.5">
               {phone.modelCode}
@@ -146,7 +141,6 @@ const PhoneCard = memo(({ phone, isExpanded, isSelectedForCompare, onToggleExpan
           </div>
         </div>
 
-        {/* MOP & Arrow Container */}
         <div className="flex items-center gap-3 shrink-0">
           <div className="text-right">
             <p className="text-[10px] font-bold uppercase text-slate-400 leading-none mb-1">MOP</p>
@@ -187,7 +181,6 @@ const PhoneCard = memo(({ phone, isExpanded, isSelectedForCompare, onToggleExpan
                 </div>
               )}
 
-              {/* OR DIVIDER */}
               {hasUpg && hasBank && !isCombo && (
                 <div className="flex items-center justify-center py-0.5 opacity-40">
                   <div className="h-px bg-slate-400 w-8"></div>
@@ -221,7 +214,6 @@ const PhoneCard = memo(({ phone, isExpanded, isSelectedForCompare, onToggleExpan
             </div>
           </div>
 
-          {/* GIFT & REMARKS SECTION */}
           {(phone.gift || phone.remarks) && (
             <div className="bg-amber-50/70 border border-amber-100/80 rounded-xl p-3.5 mb-3.5 space-y-2.5">
               {phone.gift && (
@@ -279,20 +271,9 @@ const PhoneCard = memo(({ phone, isExpanded, isSelectedForCompare, onToggleExpan
 });
 
 // ==========================================
-// COMPACT NLC CALCULATOR
+// 🌟 FULLY FIXED & POLISHED NLC CALCULATOR 🌟
 // ==========================================
-const InfoCard = ({ icon, label, value, valueColor = "text-slate-900", extra = null }) => (
-  <div className="bg-white border border-slate-200 rounded-[14px] p-2.5 flex flex-col justify-between shadow-sm transition-colors relative overflow-hidden">
-    <div className="flex items-center gap-1.5 mb-1">
-      <div className="p-1 bg-slate-50 rounded-md shadow-inner border border-slate-100 text-indigo-600">{icon}</div>
-      <span className="text-slate-500 text-[9px] font-bold tracking-widest uppercase truncate">{label}</span>
-    </div>
-    <div className={`text-[15px] sm:text-[16px] font-black ${valueColor}`}>{value}</div>
-    {extra && <div className="mt-0.5">{extra}</div>}
-  </div>
-);
-
-const NlcCalculator = memo(({ onClose, initialData }) => {
+const NlcCalculator = memo(({ onClose, initialData, showToast }) => {
   const [inputValue, setInputValue] = useState('');
   const [specialSupport, setSpecialSupport] = useState('');
   const [upgradeCb, setUpgradeCb] = useState('');
@@ -302,11 +283,14 @@ const NlcCalculator = memo(({ onClose, initialData }) => {
   const [kroPercent, setKroPercent] = useState(1.5);
   const [flatFit3Amount, setFlatFit3Amount] = useState(0); 
   const [copied, setCopied] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
   const [cbPromptAmount, setCbPromptAmount] = useState(null);
 
+  const parsedModelName = useMemo(() => {
+      if (!initialData || !initialData.model) return { main: 'Model', sub: '' };
+      return splitModelName(initialData.model);
+  }, [initialData]);
+
   useEffect(() => {
-    setIsLoaded(true);
     if (initialData && initialData.model) {
       const categoryStr = (initialData.category || '').toUpperCase();
       const modelStr = (initialData.model || '').toUpperCase();
@@ -367,29 +351,88 @@ const NlcCalculator = memo(({ onClose, initialData }) => {
   
   const isMop = series === 'A' && baseType === 'MOP';
   const actualDp = isMop ? (rawInput / 1.04) : rawInput;
-  const mopGap = isMop ? (rawInput - actualDp) : 0;
   
   const inbillMargin = Math.round(actualDp * 0.03);
-  const purchaseRate = Math.round(actualDp - inbillMargin); 
   const monthlyBase = Math.max(0, actualDp - specialSupportValue); 
   const monthlyScheme = flatFit3Amount > 0 ? flatFit3Amount : Math.round((monthlyBase / 1.18) * (schemePercent / 100));
   let kroScheme = 0;
   if (series === 'A') kroScheme = Math.round((monthlyBase / 1.18) * (kroPercent / 100));
 
-  const nettMargin = Math.round(inbillMargin + monthlyScheme + kroScheme + mopGap);
-  const netLanding = Math.round(rawInput - nettMargin - specialSupportValue - upgradeCbValue);
+  const nlcBeforeBank = Math.round(actualDp - inbillMargin - monthlyScheme - kroScheme - specialSupportValue);
+  const finalNlc = Math.round(nlcBeforeBank - upgradeCbValue);
 
   const formatCurrencyCalc = (amount) => '₹' + amount.toLocaleString('en-IN');
 
-  const handleCopyCalc = () => {
-    if (netLanding !== 0) {
-      if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(netLanding.toString());
-      else {
-        const textArea = document.createElement("textarea"); textArea.value = netLanding.toString(); document.body.appendChild(textArea); textArea.select();
-        try { document.execCommand('copy'); } catch (err) {} document.body.removeChild(textArea);
-      }
-      setCopied(true); setTimeout(() => setCopied(false), 2000);
+  const handleCopyBreakdown = () => {
+    // Formatting with clear bold amounts for WhatsApp
+    let copyText = `📱 *${parsedModelName.main} ${parsedModelName.sub}`.trim() + `*\n\n`;
+    
+    copyText += `💰 Base (${baseType}) : *${formatCurrencyCalc(rawInput)}*\n`;
+    
+    if (specialSupportValue > 0) {
+        const spclDesc = splitAmountAndDesc(initialData?.sellOut).desc;
+        copyText += `🏷️ Sellout : *-${formatCurrencyCalc(specialSupportValue)}* ${spclDesc ? `(${spclDesc})` : ''}\n`;
     }
+    
+    copyText += `➖ Inbill (3%) : *-${formatCurrencyCalc(inbillMargin)}*\n`;
+    copyText += `➖ M. Scheme (${flatFit3Amount > 0 ? 'Flat' : schemePercent + '%'}) : *-${formatCurrencyCalc(monthlyScheme)}*\n`;
+    
+    if (series === 'A' && kroPercent > 0) {
+        copyText += `➖ KRO (${kroPercent}%) : *-${formatCurrencyCalc(kroScheme)}*\n`;
+    }
+    
+    copyText += `------------------------\n`;
+    copyText += `📉 NLC : *${formatCurrencyCalc(nlcBeforeBank)}*\n`;
+    
+    if (upgradeCbValue > 0) {
+        let label = "Upg / Bank";
+        let extraNote = "";
+        
+        const bnkAmt = parsePriceToNumber(splitAmountAndDesc(initialData?.bank).amount);
+        const upgAmt = parsePriceToNumber(splitAmountAndDesc(initialData?.upgrade).amount);
+        const spclUpgAmt = parsePriceToNumber(splitAmountAndDesc(initialData?.specialUpgrade).amount);
+        
+        // Auto Detect if it's Bank or Upgrade for the text
+        if (upgradeCbValue === bnkAmt && bnkAmt > 0) {
+            label = "Bank Cb";
+            const desc = splitAmountAndDesc(initialData?.bank).desc;
+            if (desc) extraNote = `\n   ↳ 💳 _${desc}_`;
+        } else if (upgradeCbValue === (upgAmt + spclUpgAmt) && (upgAmt + spclUpgAmt) > 0) {
+            label = "Upgrade Bonus";
+            const desc1 = splitAmountAndDesc(initialData?.upgrade).desc;
+            const desc2 = splitAmountAndDesc(initialData?.specialUpgrade).desc;
+            const combinedDesc = [desc1, desc2].filter(Boolean).join(' | ');
+            if (combinedDesc) extraNote = `\n   ↳ 🔄 _${combinedDesc}_`;
+        } else {
+            label = "Upg/Bank Offer";
+            const desc1 = splitAmountAndDesc(initialData?.bank).desc;
+            const desc2 = splitAmountAndDesc(initialData?.upgrade).desc;
+            const combinedDesc = [desc1, desc2].filter(Boolean).join(' | ');
+            if (combinedDesc) extraNote = `\n   ↳ ℹ️ _${combinedDesc}_`;
+        }
+
+        copyText += `🎁 ${label} : *-${formatCurrencyCalc(upgradeCbValue)}*${extraNote}\n`;
+        copyText += `------------------------\n`;
+    }
+    
+    copyText += `🔥 *FINAL NLC : ${formatCurrencyCalc(finalNlc)}*`;
+
+    const el = document.createElement("textarea"); 
+    el.value = copyText; 
+    el.style.position = 'fixed'; 
+    el.style.opacity = '0';
+    document.body.appendChild(el); 
+    el.focus();
+    el.select();
+    try { 
+      document.execCommand('copy'); 
+      setCopied(true); 
+      setTimeout(() => setCopied(false), 2000); 
+      if (showToast) showToast("Breakdown Copied!");
+    } catch (err) {
+      if (showToast) showToast("Failed to copy");
+    } 
+    document.body.removeChild(el);
   };
 
   const decreaseScheme = () => { if (schemePercent > 0.0) setSchemePercent(prev => parseFloat((prev - 0.5).toFixed(1))); };
@@ -398,140 +441,153 @@ const NlcCalculator = memo(({ onClose, initialData }) => {
   const increaseKro = () => { if (kroPercent < 3.0) setKroPercent(prev => parseFloat((prev + 0.5).toFixed(1))); };
 
   return (
-    <div className="fixed inset-0 z-[200] bg-[#F8FAFC] overflow-y-auto animate-fade-in-up flex flex-col font-sans text-slate-900">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/70 backdrop-blur-sm animate-fade-in p-4 font-sans text-slate-900">
       
-      {cbPromptAmount !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-900/40 backdrop-blur-sm">
-          <div className="bg-white border border-slate-200 rounded-[20px] p-5 w-full max-w-[280px] shadow-2xl animate-fade-in text-center">
-            <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mb-3 mx-auto"><CreditCard size={20} /></div>
-            <h3 className="text-base font-black text-slate-900 mb-1">Apply Bank Cashback?</h3>
-            <p className="text-slate-500 text-xs mb-5">Cashback is <strong className="text-slate-900">₹{cbPromptAmount}</strong>. Include it?</p>
-            <div className="flex gap-2">
-              <button onClick={() => { setUpgradeCb(''); setCbPromptAmount(null); }} className="flex-1 py-2.5 rounded-lg font-bold text-xs bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">Skip</button>
-              <button onClick={() => { setUpgradeCb(cbPromptAmount.toString()); setCbPromptAmount(null); }} className="flex-1 py-2.5 rounded-lg font-bold text-xs bg-indigo-600 text-white shadow-md shadow-indigo-600/20 hover:bg-indigo-700 transition-colors">Apply</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="sticky top-0 bg-white/90 backdrop-blur-md border-b border-slate-200 px-3 py-2.5 flex justify-between items-center z-30 shadow-sm">
-        <div className="flex items-center gap-2">
-          <button onClick={onClose} className="p-1.5 bg-slate-100 hover:bg-slate-200 rounded-full text-slate-600 transition-colors"><ChevronLeft className="w-5 h-5" /></button>
-          <div>
-            <h1 className="text-[16px] sm:text-[18px] font-black leading-tight text-slate-900">NLC Calc</h1>
-          </div>
-        </div>
-        <div className="bg-slate-100 p-1 rounded-xl flex relative">
-            <div className={`absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-[8px] transition-transform duration-300 ease-out z-0 bg-white shadow-sm ${series === 'S' ? 'translate-x-0' : 'translate-x-[100%]'}`}></div>
-            <button onClick={() => { setSeries('S'); setBaseType('DP'); }} className={`relative z-10 px-3 py-1 text-[10px] font-bold rounded-lg ${series === 'S' ? 'text-indigo-600' : 'text-slate-500'}`}>S-Series</button>
-            <button onClick={() => setSeries('A')} className={`relative z-10 px-3 py-1 text-[10px] font-bold rounded-lg ${series === 'A' ? 'text-indigo-600' : 'text-slate-500'}`}>A-Series</button>
-        </div>
-      </div>
-
-      <div className="flex-1 w-full max-w-md mx-auto p-3 flex flex-col gap-2.5 pb-6">
+      {/* Fully fixed dimensions:
+        max-w-[400px]: Standard modal width.
+        max-h-[90vh]: Keeps it strictly inside mobile screens without getting cut.
+      */}
+      <div className="bg-white w-full max-w-[400px] max-h-[90vh] rounded-[24px] shadow-2xl flex flex-col relative overflow-hidden animate-fade-in-up border border-slate-200/50">
         
-        {initialData && initialData.model && (
-          <div className="text-center animate-fade-in">
-            <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest bg-white border border-slate-200 shadow-sm text-slate-700`}>
-              <CustomSamsungIcon className={series === 'S' ? 'text-indigo-500' : 'text-purple-500'} size={14} /> 
-              {splitModelName(initialData.model).main}
-            </span>
+        {cbPromptAmount !== null && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center px-5 bg-slate-900/80 backdrop-blur-md rounded-[inherit]">
+            <div className="bg-white border border-slate-200 rounded-[20px] p-6 w-full shadow-2xl animate-fade-in text-center">
+              <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mb-3 mx-auto"><CreditCard size={24} /></div>
+              <h3 className="text-[16px] font-black text-slate-900 mb-1.5">Apply Cashback?</h3>
+              <p className="text-slate-500 text-[13px] mb-5">Bank cashback is <strong className="text-slate-900 text-[14px]">₹{cbPromptAmount}</strong>.</p>
+              <div className="flex gap-2.5">
+                <button onClick={() => { setUpgradeCb(''); setCbPromptAmount(null); }} className="flex-1 py-3 rounded-xl font-bold text-[13px] bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">Skip</button>
+                <button onClick={() => { setUpgradeCb(cbPromptAmount.toString()); setCbPromptAmount(null); }} className="flex-1 py-3 rounded-xl font-bold text-[13px] bg-indigo-600 text-white shadow-md shadow-indigo-600/20 hover:bg-indigo-700 transition-colors">Apply</button>
+              </div>
+            </div>
           </div>
         )}
 
-        <div className="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-[16px] p-3.5 flex flex-col gap-0.5 shadow-md shadow-indigo-600/10 relative overflow-hidden animate-fade-in-up">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-5 rounded-full blur-2xl transform translate-x-8 -translate-y-8"></div>
-          <div className="flex justify-between items-center relative z-10">
-            <span className="text-white/80 text-[10px] font-bold uppercase tracking-widest">Final Net Landing</span>
-            <button onClick={handleCopyCalc} className={`p-2 rounded-lg border transition-colors ${copied ? 'bg-emerald-500 border-emerald-400 text-white' : 'bg-white/20 border-white/30 text-white hover:bg-white/30 shadow-sm'}`}>
-              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            </button>
+        {/* HEADER - Fixed */}
+        <div className="bg-white border-b border-slate-100 px-4 py-3.5 flex justify-between items-center z-30 shrink-0">
+          <div className="flex items-center gap-2.5">
+            <button onClick={onClose} className="p-2 bg-slate-100 hover:bg-slate-200 rounded-full text-slate-600 transition-colors"><ChevronLeft size={18} /></button>
+            <h1 className="text-[16px] font-black text-slate-900 leading-none mt-0.5">Smart NLC</h1>
           </div>
-          <div className="text-[28px] sm:text-[32px] font-black text-white relative z-10 tracking-tight leading-none mt-1">
-            {formatCurrencyCalc(netLanding)}
-          </div>
-        </div>
-
-        <div className="bg-white border border-slate-200 rounded-[16px] p-3 shadow-sm space-y-2.5 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          <div>
-            <div className="flex justify-between items-center mb-1.5 px-1">
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">{series === 'S' ? 'Dealer Price (DP)' : `Base Amount`}</label>
-              <div className={`flex bg-slate-100 rounded-md p-0.5 transition-opacity ${series === 'A' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                <button onClick={() => setBaseType('DP')} className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all ${baseType === 'DP' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500'}`}>DP</button>
-                <button onClick={() => setBaseType('MOP')} className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all ${baseType === 'MOP' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500'}`}>MOP</button>
-              </div>
-            </div>
-            <div className="relative">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><IndianRupee size={16} /></div>
-              <input type="number" value={inputValue} onChange={(e) => setInputValue(e.target.value)} placeholder="0" className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-9 pr-3 text-[16px] font-bold text-slate-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner" />
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-2.5">
-            <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1.5 px-1">Support / Sellout</label>
-              <div className="relative">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><Tag size={14} /></div>
-                <input type="number" value={specialSupport} onChange={(e) => setSpecialSupport(e.target.value)} placeholder="0" className="w-full bg-slate-50 border border-slate-200 rounded-xl py-1.5 pl-8 pr-2 text-[14px] font-bold text-slate-900 focus:outline-none focus:border-indigo-500 transition-all shadow-inner" />
-              </div>
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1.5 px-1">Upgrade / Bank</label>
-              <div className="relative">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><Gift size={14} /></div>
-                <input type="number" value={upgradeCb} onChange={(e) => setUpgradeCb(e.target.value)} placeholder="0" className="w-full bg-slate-50 border border-slate-200 rounded-xl py-1.5 pl-8 pr-2 text-[14px] font-bold text-slate-900 focus:outline-none focus:border-indigo-500 transition-all shadow-inner" />
-              </div>
-            </div>
+          <div className="bg-slate-100 p-1.5 rounded-lg flex relative">
+            <div className={`absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] rounded-md transition-transform duration-300 ease-out z-0 bg-white shadow-sm ${series === 'S' ? 'translate-x-0' : 'translate-x-[100%]'}`}></div>
+            <button onClick={() => { setSeries('S'); setBaseType('DP'); }} className={`relative z-10 px-3 py-1.5 text-[11px] font-bold rounded-md ${series === 'S' ? 'text-indigo-600' : 'text-slate-500'}`}>S-Series</button>
+            <button onClick={() => setSeries('A')} className={`relative z-10 px-3 py-1.5 text-[11px] font-bold rounded-md ${series === 'A' ? 'text-indigo-600' : 'text-slate-500'}`}>A-Series</button>
           </div>
         </div>
 
-        <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-          <div className="grid grid-cols-2 gap-2">
-            <InfoCard icon={<Percent size={14} />} label="Inbill (3%)" value={formatCurrencyCalc(inbillMargin)} valueColor="text-emerald-600" />
-            <InfoCard icon={<Box size={14} />} label="Purchase" value={formatCurrencyCalc(purchaseRate)} valueColor="text-blue-600" />
-          </div>
+        {/* CONTENT - Scrollable area so it never breaks layout */}
+        <div className="flex-1 flex flex-col p-4 sm:p-5 gap-3.5 overflow-y-auto hide-scrollbar bg-slate-50">
           
-          <div className="bg-white border border-slate-200 rounded-[14px] p-3 flex items-center justify-between shadow-sm">
-            <div className="flex-1">
-              <div className="flex items-center gap-1.5 mb-1">
-                <div className="p-1 bg-indigo-50 rounded text-indigo-600"><Calculator className="w-3.5 h-3.5" /></div>
-                <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">M. Scheme <span className="text-indigo-600 ml-1">{flatFit3Amount > 0 ? '(Flat)' : `${schemePercent}%`}</span></span>
-              </div>
-              <div className="text-[17px] font-black text-slate-900">{formatCurrencyCalc(monthlyScheme)}</div>
+          {initialData && initialData.model && (
+            <div className="text-center -mt-1 px-1 flex flex-col items-center">
+              <span className="inline-flex flex-col items-center px-3 py-1.5 rounded-xl bg-white border border-slate-200 shadow-sm text-center">
+                <span className="text-[11px] font-black uppercase tracking-widest text-slate-700 leading-tight">
+                  {parsedModelName.main}
+                </span>
+                {parsedModelName.sub && (
+                  <span className="text-[10px] font-bold text-indigo-600 mt-0.5">
+                    {parsedModelName.sub}
+                  </span>
+                )}
+              </span>
             </div>
-            <div className="flex items-center bg-slate-50 rounded-lg p-1 border border-slate-200 shadow-inner">
-              <button onClick={decreaseScheme} disabled={flatFit3Amount > 0} className="p-1 text-slate-400 hover:text-slate-700 hover:bg-white rounded transition-colors disabled:opacity-30"><Minus size={14} /></button>
-              <span className="text-[13px] font-bold text-slate-900 w-7 text-center">{flatFit3Amount > 0 ? '-' : schemePercent}</span>
-              <button onClick={increaseScheme} disabled={flatFit3Amount > 0} className="p-1 text-slate-400 hover:text-slate-700 hover:bg-white rounded transition-colors disabled:opacity-30"><Plus size={14} /></button>
-            </div>
-          </div>
+          )}
 
-          <div className={`transition-all duration-300 overflow-hidden ${series === 'A' ? 'max-h-[100px] opacity-100' : 'max-h-0 opacity-0 m-0'}`}>
-            <div className="bg-white border border-slate-200 rounded-[14px] p-3 flex items-center justify-between shadow-sm">
-              <div className="flex-1">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <div className="p-1 bg-pink-50 rounded text-pink-500"><Star className="w-3.5 h-3.5" /></div>
-                  <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">KRO <span className="text-pink-600 ml-1">{kroPercent}%</span></span>
+          {/* INPUTS ROW */}
+          <div className="bg-white border border-slate-200 shadow-sm rounded-[16px] p-3.5 flex flex-col gap-3">
+            <div>
+              <div className="flex justify-between items-center mb-1.5 px-1">
+                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Base Amount</label>
+                <div className={`flex gap-1 bg-slate-50 p-0.5 rounded-lg border border-slate-100 ${series === 'A' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                  <button onClick={() => setBaseType('DP')} className={`px-2.5 py-1 text-[10px] font-bold rounded-md ${baseType === 'DP' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>DP</button>
+                  <button onClick={() => setBaseType('MOP')} className={`px-2.5 py-1 text-[10px] font-bold rounded-md ${baseType === 'MOP' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>MOP</button>
                 </div>
-                <div className="text-[17px] font-black text-slate-900">{formatCurrencyCalc(kroScheme)}</div>
               </div>
-              <div className="flex items-center bg-slate-50 rounded-lg p-1 border border-slate-200 shadow-inner">
-                <button onClick={decreaseKro} className="p-1 text-slate-400 hover:text-slate-700 hover:bg-white rounded transition-colors"><Minus size={14} /></button>
-                <span className="text-[13px] font-bold text-slate-900 w-7 text-center">{kroPercent}</span>
-                <button onClick={increaseKro} className="p-1 text-slate-400 hover:text-slate-700 hover:bg-white rounded transition-colors"><Plus size={14} /></button>
+              <div className="relative">
+                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"><IndianRupee size={16} /></div>
+                <input type="number" value={inputValue} onChange={(e) => setInputValue(e.target.value)} placeholder="0" className="w-full bg-slate-50 border border-slate-200 rounded-xl h-11 pl-9 pr-3 text-[15px] font-black text-slate-900 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all shadow-inner" />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5 px-1">Sellout / Sup</label>
+                <div className="relative">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><Tag size={14} /></div>
+                  <input type="number" value={specialSupport} onChange={(e) => setSpecialSupport(e.target.value)} placeholder="0" className="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 pl-8 pr-2 text-[13px] font-bold text-slate-900 focus:bg-white focus:border-indigo-500 outline-none transition-colors shadow-inner" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1.5 px-1">Upg / Bank</label>
+                <div className="relative">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><Gift size={14} /></div>
+                  <input type="number" value={upgradeCb} onChange={(e) => setUpgradeCb(e.target.value)} placeholder="0" className="w-full bg-slate-50 border border-slate-200 rounded-xl h-10 pl-8 pr-2 text-[13px] font-bold text-slate-900 focus:bg-white focus:border-indigo-500 outline-none transition-colors shadow-inner" />
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-[16px] p-3.5 flex items-center justify-between shadow-sm mt-1">
-            <div className="flex flex-col">
-              <span className="text-amber-700 text-[11px] font-bold uppercase mb-0.5 tracking-widest">Total Nett Margin</span>
-              {isMop && <span className="text-[9px] text-amber-600/80 font-bold">+ MOP Gap: {formatCurrencyCalc(Math.round(mopGap))}</span>}
+          {/* PROFESSIONAL BREAKDOWN RECEIPT */}
+          <div className="bg-white border border-slate-200 rounded-[16px] p-3.5 shadow-sm text-[13px] shrink-0">
+            <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-1 mb-1.5">Breakdown</h4>
+            
+            <div className="flex justify-between items-center py-2 border-b border-slate-100">
+              <span className="text-slate-500 font-bold flex items-center gap-1.5"><Percent size={14}/> Inbill <span className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-black border border-slate-200">3%</span></span>
+              <span className="font-black text-slate-800">-{formatCurrencyCalc(inbillMargin)}</span>
             </div>
-            <div className="text-[20px] font-black text-amber-600">{formatCurrencyCalc(nettMargin)}</div>
+
+            <div className="flex justify-between items-center py-2 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <span className="text-slate-500 font-bold flex items-center gap-1.5"><Calculator size={14}/> M. Scheme</span>
+                <div className="flex items-center bg-slate-50 border border-slate-200 rounded shadow-sm ml-1">
+                  <button onClick={decreaseScheme} disabled={flatFit3Amount > 0} className="px-2 py-0.5 text-slate-400 hover:text-slate-800 disabled:opacity-30"><Minus size={12} /></button>
+                  <span className="text-[11px] font-bold w-7 text-center">{flatFit3Amount > 0 ? '-' : `${schemePercent}%`}</span>
+                  <button onClick={increaseScheme} disabled={flatFit3Amount > 0} className="px-2 py-0.5 text-slate-400 hover:text-slate-800 disabled:opacity-30"><Plus size={12} /></button>
+                </div>
+              </div>
+              <span className="font-black text-indigo-600">-{formatCurrencyCalc(monthlyScheme)}</span>
+            </div>
+
+            {series === 'A' && (
+              <div className="flex justify-between items-center py-2 border-b border-slate-100 animate-fade-in">
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-500 font-bold flex items-center gap-1.5"><Star size={14}/> KRO Promo</span>
+                  <div className="flex items-center bg-slate-50 border border-slate-200 rounded shadow-sm ml-1">
+                    <button onClick={decreaseKro} className="px-2 py-0.5 text-slate-400 hover:text-slate-800"><Minus size={12} /></button>
+                    <span className="text-[11px] font-bold w-7 text-center">{kroPercent}%</span>
+                    <button onClick={increaseKro} className="px-2 py-0.5 text-slate-400 hover:text-slate-800"><Plus size={12} /></button>
+                  </div>
+                </div>
+                <span className="font-black text-pink-600">-{formatCurrencyCalc(kroScheme)}</span>
+              </div>
+            )}
+
+            <div className="flex justify-between items-center pt-2.5 pb-1 text-slate-800">
+              <span className="font-bold uppercase text-[11px] tracking-wide text-slate-500">NLC Before Bank</span>
+              <span className="font-black text-[14px]">{formatCurrencyCalc(nlcBeforeBank)}</span>
+            </div>
           </div>
+
+          {/* FINAL NLC BOX */}
+          <div className="bg-slate-900 rounded-[16px] p-4 flex flex-col relative overflow-hidden shrink-0 shadow-lg mt-1">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
+            
+            <div className="flex justify-between items-center relative z-10 mb-2 border-b border-white/10 pb-2">
+               <span className="text-white/60 text-[10px] font-bold uppercase tracking-widest">Final Calculation</span>
+               <button onClick={handleCopyBreakdown} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black transition-all ${copied ? 'bg-emerald-500 border border-emerald-400 text-white' : 'bg-white/10 text-white hover:bg-white/20'}`}>
+                 {copied ? <Check size={12} strokeWidth={3}/> : <ClipboardList size={12} strokeWidth={2}/>}
+                 {copied ? 'Copied!' : 'Copy Info'}
+               </button>
+            </div>
+
+            <div className="flex justify-between items-end relative z-10">
+              <span className="text-white text-[12px] font-bold uppercase tracking-wide">Final NLC</span>
+              <span className="text-[28px] font-black text-white leading-none tracking-tight">{formatCurrencyCalc(finalNlc)}</span>
+            </div>
+          </div>
+
         </div>
-
       </div>
     </div>
   );
@@ -560,6 +616,7 @@ export default function App() {
   const [showCompareModal, setShowCompareModal] = useState(false);
   
   const [calculatorData, setCalculatorData] = useState(null);
+  const [toastMsg, setToastMsg] = useState('');
   
   const [storeName, setStoreName] = useState(() => {
     try { return localStorage.getItem('samassist_store_name') || 'Samsung Store'; } 
@@ -583,11 +640,10 @@ export default function App() {
   const scrollTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
   const agreeToTerms = () => { try { localStorage.setItem('samsung_dealer_agreed', 'true'); } catch (e) {} setHasAgreed(true); };
 
-  const checkDataAge = (syncTime) => {
-    if (!syncTime) return;
-    const diffInHours = (new Date() - syncTime) / (1000 * 60 * 60);
-    setIsOutdated(diffInHours > 24);
-  };
+  const showToast = useCallback((msg) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(''), 3000);
+  }, []);
 
   const csvToArray = (text) => {
     const result = []; let row = []; let inQuotes = false; let val = "";
@@ -689,7 +745,7 @@ export default function App() {
     } catch (e) { return { data: [], fetchedDate: null }; }
   };
 
-  const fetchAllData = async (isBackground = false) => {
+  const fetchAllData = useCallback(async (isBackground = false) => {
     if (!isBackground) setLoading(true); setIsRefreshing(true); setError(null);
     try {
       const allResults = await Promise.all(SHEET_TABS.map(tab => fetchSingleSheet(tab)));
@@ -720,8 +776,9 @@ export default function App() {
       });
     } catch (err) {
       if (phones.length === 0) setError(err.message || "Network error.");
+      showToast("Sync failed. Check internet.");
     } finally { setLoading(false); setIsRefreshing(false); }
-  };
+  }, [phones.length, showToast]);
 
   useEffect(() => {
     let hasCache = false;
@@ -732,12 +789,17 @@ export default function App() {
       if (data) {
         const parsed = JSON.parse(data);
         if (Array.isArray(parsed)) { setPhones(parsed); hasCache = true; }
-        if (time) { const t = new Date(time); setLastSynced(t); checkDataAge(t); }
+        if (time) { 
+            const t = new Date(time); 
+            setLastSynced(t); 
+            const diffInHours = (new Date() - t) / (1000 * 60 * 60);
+            setIsOutdated(diffInHours > 24);
+        }
         if (date) setSheetDate(date);
       }
     } catch(e) {}
     fetchAllData(hasCache);
-  }, []);
+  }, [fetchAllData]);
 
   const displayPhones = useMemo(() => {
     let filtered = phones.filter(p => {
@@ -752,14 +814,27 @@ export default function App() {
   }, [phones, searchQuery, activeCategory, sortBy]);
 
   const handleToggleExpand = useCallback((id) => { setExpandedId(prev => prev === id ? null : id); setCopyStatus(null); }, []);
+  
   const handleToggleCompare = useCallback((phone) => {
     setCompareList(prev => {
-      if (prev.find(p => p.id === phone.id)) return prev.filter(p => p.id !== phone.id);
-      if (prev.length >= 3) { alert("Max 3 models allowed."); return prev; }
+      if (prev.find(p => p.id === phone.id)) {
+        if (prev.length === 1 && showCompareModal) {
+          setShowCompareModal(false);
+        }
+        return prev.filter(p => p.id !== phone.id);
+      }
+      if (prev.length >= 3) { 
+        showToast("Max 3 models allowed for comparison."); 
+        return prev; 
+      }
       return [...prev, phone];
     });
+  }, [showToast, showCompareModal]);
+  
+  const clearCompare = useCallback(() => {
+    setCompareList([]);
+    setShowCompareModal(false);
   }, []);
-  const clearCompare = useCallback(() => setCompareList([]), []);
 
   const generateShareText = useCallback((phone) => {
     const sName = splitModelName(phone.model);
@@ -789,28 +864,48 @@ export default function App() {
 
   const handleCopy = useCallback((phone) => {
     const txt = generateShareText(phone);
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(txt).then(() => { setCopyStatus(phone.id); setTimeout(() => setCopyStatus(null), 2000); }).catch(() => {});
-    } else {
-      const el = document.createElement("textarea"); el.value = txt; document.body.appendChild(el); el.select();
-      try { document.execCommand('copy'); setCopyStatus(phone.id); setTimeout(() => setCopyStatus(null), 2000); } catch (e) {}
-      document.body.removeChild(el);
+    const el = document.createElement("textarea"); 
+    el.value = txt; 
+    el.style.position = 'fixed'; 
+    el.style.top = '0';
+    el.style.left = '0';
+    el.style.opacity = '0';
+    document.body.appendChild(el); 
+    el.focus();
+    el.select();
+    try { 
+      document.execCommand('copy'); 
+      setCopyStatus(phone.id); 
+      setTimeout(() => setCopyStatus(null), 2000); 
+      showToast("Copied to clipboard!");
+    } catch (e) {
+      showToast("Failed to copy. Feature not supported.");
     }
-  }, [generateShareText]);
+    document.body.removeChild(el);
+  }, [generateShareText, showToast]);
 
   const handleWhatsApp = useCallback((phone) => { window.open(`https://wa.me/?text=${encodeURIComponent(generateShareText(phone))}`, '_blank'); }, [generateShareText]);
   const handleOpenTemplateModal = useCallback((phone) => setTemplateModalPhone(phone), []);
   const handleOpenCalculator = useCallback((phone) => setCalculatorData(phone), []);
 
-  // --- 🌟 PREMIUM POSTER ENGINE 🌟 ---
   const handleGenerateImage = async (phone, templateId) => {
     setTemplateModalPhone(null); setIsGeneratingImg(phone.id);
     try {
       const canvas = document.createElement('canvas'); canvas.width = 1080; canvas.height = 1920; const ctx = canvas.getContext('2d');
       let imgObj = null;
       if (phone.imageUrl) {
-        try { imgObj = await new Promise((res, rej) => { const img = new Image(); img.crossOrigin = "anonymous"; img.onload = () => res(img); img.onerror = rej; img.src = phone.imageUrl; }); } 
-        catch (e) {}
+        try { 
+          imgObj = await new Promise((res, rej) => { 
+            const img = new Image(); 
+            img.crossOrigin = "anonymous"; 
+            img.onload = () => res(img); 
+            img.onerror = rej; 
+            img.src = phone.imageUrl; 
+          }); 
+        } 
+        catch (e) {
+          console.warn("Could not load image due to CORS. Continuing without image.");
+        }
       }
 
       const drawRoundRect = (ctx, x, y, w, h, r) => {
@@ -844,7 +939,6 @@ export default function App() {
       if(hasBank) dList.push({label: 'Bank Offer', val: formatSafePrice(splitAmountAndDesc(phone.bank).amount)});
       if(isValidDiscount(phone.specialUpgrade)) dList.push({label: 'Special Offer', val: formatSafePrice(splitAmountAndDesc(phone.specialUpgrade).amount)});
 
-      // THEMES: Center Dark & Center Light
       if (templateId === 'center-dark' || templateId === 'center-light') {
         const isDark = templateId === 'center-dark';
         
@@ -860,17 +954,14 @@ export default function App() {
         ctx.shadowColor = isDark ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.08)'; ctx.shadowBlur = 60; 
         ctx.fillStyle = '#ffffff'; drawRoundRect(ctx, 50, 160, 980, 1460, 50); ctx.fill(); ctx.shadowColor = 'transparent';
 
-        // Much bigger image logic
         let cY = 220;
         if (imgObj) {
           let dW = imgObj.width; let dH = imgObj.height;
-          // Massive max bounds for image
           const maxW = 750; const maxH = 650;
           if (dW > maxW || dH > maxH) { const ratio = Math.min(maxW/dW, maxH/dH); dW *= ratio; dH *= ratio; }
           ctx.drawImage(imgObj, 540 - (dW/2), cY, dW, dH); cY += dH + 50;
         } else { cY += 500 + 50; }
 
-        // Bolder, bigger text
         ctx.fillStyle = '#0f172a'; ctx.font = 'bold 75px sans-serif'; ctx.textAlign = 'center';
         cY += drawWrappedText(ctx, sn.main, 540, cY, 880, 85, 'center') + 10;
         
@@ -893,7 +984,6 @@ export default function App() {
           }
         });
 
-        // Price block
         ctx.fillStyle = isDark ? '#0f172a' : '#f1f5f9'; drawRoundRect(ctx, 100, 1380, 880, 200, 40); ctx.fill();
         ctx.fillStyle = isDark ? '#94a3b8' : '#64748b'; ctx.font = 'bold 28px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('NET EFFECTIVE PRICE', 540, 1445);
         ctx.fillStyle = isDark ? '#ffffff' : '#0f172a'; ctx.font = 'bold 110px sans-serif'; ctx.fillText(phone.effectivePrice, 540, 1545);
@@ -902,7 +992,6 @@ export default function App() {
         ctx.fillStyle = isDark ? '#ffffff' : '#0f172a'; ctx.font = 'bold 50px sans-serif'; ctx.fillText(sText, 540, 1785);
       }
       
-      // THEME: Modern Left
       else if (templateId === 'modern-left') {
         ctx.fillStyle = '#1e1b4b'; ctx.fillRect(0, 0, 1080, 1920); 
         
@@ -932,7 +1021,6 @@ export default function App() {
           }
         });
 
-        // Left layout gets a massively tall image on the right
         if (imgObj) {
           let dW = imgObj.width; let dH = imgObj.height;
           const maxW = 550; const maxH = 900;
@@ -948,7 +1036,6 @@ export default function App() {
         ctx.fillStyle = '#ffffff'; ctx.font = 'bold 50px sans-serif'; ctx.fillText(sText, 70, 1745);
       }
 
-      // THEME: Story Card
       else if (templateId === 'story-card') {
         ctx.fillStyle = '#f1f5f9'; ctx.fillRect(0, 0, 1080, 1920); 
         
@@ -1001,10 +1088,14 @@ export default function App() {
 
       const link = document.createElement('a'); link.download = `Offer_${sn.main.replace(/\s+/g,'_')}.jpg`;
       link.href = canvas.toDataURL('image/jpeg', 0.95); link.click();
-    } catch(e) {} finally { setIsGeneratingImg(null); }
+    } catch(e) {
+      showToast("Poster generation failed.");
+    } finally { setIsGeneratingImg(null); }
   };
 
   const categories = ['All', ...SHEET_TABS.map(t => t.name)];
+  
+  const gridColsClass = compareList.length === 1 ? 'grid-cols-2' : compareList.length === 2 ? 'grid-cols-3' : 'grid-cols-4';
 
   return (
     <div className="min-h-screen font-sans pb-12 bg-[#F8FAFC] text-slate-900 relative">
@@ -1012,7 +1103,7 @@ export default function App() {
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         @keyframes fadeInUp { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in-up { animation: fadeInUp 0.4s ease-out forwards; opacity: 0; }
+        .animate-fade-in-up { animation: fadeInUp 0.3s ease-out forwards; opacity: 0; }
         @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
         .animate-fade-in { animation: fadeIn 0.2s ease-out forwards; }
         body { overscroll-behavior-y: none; }
@@ -1020,8 +1111,17 @@ export default function App() {
         input[type="number"] { -moz-appearance: textfield; }
       `}</style>
 
+      {toastMsg && (
+        <div className="fixed bottom-12 left-0 right-0 z-[300] flex justify-center pointer-events-none px-4">
+          <div className="bg-slate-900/95 backdrop-blur-sm text-white px-5 py-3 rounded-full shadow-2xl text-[13px] font-bold flex items-center justify-center gap-2 animate-fade-in-up pointer-events-auto">
+            <Check size={16} className="text-emerald-400" />
+            {toastMsg}
+          </div>
+        </div>
+      )}
+
       {calculatorData !== null && (
-        <NlcCalculator onClose={() => setCalculatorData(null)} initialData={calculatorData} />
+        <NlcCalculator onClose={() => setCalculatorData(null)} initialData={calculatorData} showToast={showToast} />
       )}
 
       {compareList.length > 0 && !showCompareModal && calculatorData === null && (
@@ -1046,41 +1146,50 @@ export default function App() {
       )}
 
       {showCompareModal && calculatorData === null && (
-        <div className="fixed inset-0 z-[120] bg-[#F8FAFC] overflow-y-auto animate-fade-in-up">
-          <div className="sticky top-0 bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 py-3.5 flex justify-between items-center z-10 shadow-sm">
-            <h2 className="text-[18px] font-black text-slate-900 flex items-center gap-2"><Layers size={20} className="text-indigo-600"/> Compare</h2>
-            <button onClick={() => setShowCompareModal(false)} className="p-2 bg-slate-100 rounded-full text-slate-600 hover:bg-slate-200"><X size={20}/></button>
-          </div>
-          <div className="p-3.5 max-w-4xl mx-auto">
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-              <div className="grid grid-cols-4 gap-1.5 bg-slate-50 p-2.5 border-b border-slate-100">
-                <div className="col-span-1 pt-12 text-[10px] font-bold text-slate-400 uppercase text-center">Models</div>
-                {compareList.map(p => (
-                  <div key={p.id} className="col-span-1 flex flex-col items-center text-center gap-1.5">
-                    <div className="w-12 h-12 bg-white rounded-xl p-1.5 border border-slate-100 flex items-center justify-center">
-                      {p.imageUrl ? <img src={p.imageUrl} className="max-h-full object-contain" alt=""/> : <CustomSamsungIcon className="text-slate-300" size={18}/>}
-                    </div>
-                    <span className="text-[10px] sm:text-[11px] font-bold text-slate-900 leading-tight break-words px-1">{splitModelName(p.model).main}</span>
-                    <button onClick={() => handleToggleCompare(p)} className="text-[9px] text-red-500 font-bold bg-red-50 px-2.5 py-1 rounded-full mt-1">Remove</button>
-                  </div>
-                ))}
-              </div>
+        <div className="fixed inset-0 z-[120] flex items-center justify-center sm:p-4 bg-[#F8FAFC] sm:bg-slate-900/60 sm:backdrop-blur-sm animate-fade-in">
+          <div className="bg-[#F8FAFC] w-full h-full sm:h-auto sm:max-h-[95vh] sm:max-w-4xl sm:rounded-[24px] shadow-2xl flex flex-col relative overflow-hidden animate-fade-in-up">
+            <div className="shrink-0 bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 py-3.5 flex justify-between items-center z-20 shadow-sm">
+              <h2 className="text-[18px] font-black text-slate-900 flex items-center gap-2"><Layers size={20} className="text-indigo-600"/> Compare</h2>
+              <button onClick={() => setShowCompareModal(false)} className="p-2 bg-slate-100 rounded-full text-slate-600 hover:bg-slate-200 transition-colors"><X size={20}/></button>
+            </div>
 
-              {[
-                { label: 'MOP', key: 'mop', color: 'text-slate-900 font-bold' },
-                { label: 'Effective', key: 'effectivePrice', color: 'text-indigo-700 font-black bg-indigo-50/50' },
-                { label: 'Upgrade', key: 'upgrade', color: 'text-purple-600 font-semibold' },
-                { label: 'Bank', key: 'bank', color: 'text-emerald-600 font-semibold' },
-                { label: 'Sellout', key: 'sellOut', color: 'text-slate-600 font-semibold' },
-                { label: 'Special', key: 'specialUpgrade', color: 'text-amber-600 font-semibold' }
-              ].map((row) => (
-                <div key={row.label} className={`grid grid-cols-4 gap-1.5 border-b border-slate-100 last:border-0 py-3.5 items-center ${row.key === 'effectivePrice' ? 'bg-indigo-50/30' : ''}`}>
-                  <div className="col-span-1 text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase text-center">{row.label}</div>
-                  {compareList.map(p => (
-                    <div key={p.id} className={`col-span-1 text-center text-[11px] sm:text-[12px] ${row.color}`}>{p[row.key] || '-'}</div>
-                  ))}
+            <div className="flex-1 overflow-y-auto p-3.5 sm:p-5 hide-scrollbar">
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden w-full">
+                <div className="overflow-x-auto hide-scrollbar">
+                  <div className="min-w-[300px]">
+                    <div className={`grid ${gridColsClass} gap-1.5 bg-slate-50 p-2 border-b border-slate-100`}>
+                      <div className="flex items-end justify-center text-[10px] font-bold text-slate-400 uppercase pb-2">Specs</div>
+                      {compareList.map(p => (
+                        <div key={p.id} className="flex flex-col items-center text-center gap-1.5 p-1 relative pt-2">
+                          <button onClick={() => handleToggleCompare(p)} className="absolute top-0 right-0 sm:right-2 bg-red-100 text-red-600 p-1 rounded-full shadow-sm hover:bg-red-200 transition-colors z-10"><X size={12}/></button>
+                          <div className="w-12 h-12 bg-white rounded-xl p-1.5 border border-slate-100 flex items-center justify-center shadow-sm">
+                            {p.imageUrl ? <img src={p.imageUrl} className="max-h-full object-contain" alt=""/> : <CustomSamsungIcon className="text-slate-300" size={18}/>}
+                          </div>
+                          <span className="text-[10px] sm:text-[11px] font-bold text-slate-900 leading-tight break-words px-1 text-balance">{splitModelName(p.model).main}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {[
+                      { label: 'MOP', key: 'mop', color: 'text-slate-900 font-bold' },
+                      { label: 'Effective', key: 'effectivePrice', color: 'text-indigo-700 font-black bg-indigo-50/50' },
+                      { label: 'Upgrade', key: 'upgrade', color: 'text-purple-600 font-semibold' },
+                      { label: 'Bank', key: 'bank', color: 'text-emerald-600 font-semibold' },
+                      { label: 'Sellout', key: 'sellOut', color: 'text-slate-600 font-semibold' },
+                      { label: 'Special', key: 'specialUpgrade', color: 'text-amber-600 font-semibold' }
+                    ].map((row) => (
+                      <div key={row.label} className={`grid ${gridColsClass} gap-1.5 border-b border-slate-100 last:border-0 py-3 items-stretch ${row.key === 'effectivePrice' ? 'bg-indigo-50/30' : ''}`}>
+                        <div className="flex items-center justify-center text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase text-center px-1">{row.label}</div>
+                        {compareList.map(p => (
+                          <div key={p.id} className={`flex items-center justify-center text-center text-[11px] sm:text-[12px] break-words px-1 py-1 rounded-md ${row.color}`}>
+                            {p[row.key] || '-'}
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ))}
+              </div>
             </div>
           </div>
         </div>
@@ -1088,7 +1197,7 @@ export default function App() {
 
       {templateModalPhone && calculatorData === null && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="bg-white rounded-[24px] w-full max-w-[340px] overflow-hidden shadow-2xl relative">
+          <div className="bg-white rounded-[24px] w-full max-w-[340px] overflow-hidden shadow-2xl relative animate-fade-in-up">
             <div className="p-5 text-center border-b border-slate-100">
               <h3 className="text-[16px] font-black text-slate-900">Poster Design</h3>
             </div>
@@ -1248,3 +1357,5 @@ export default function App() {
     </div>
   );
 }
+
+
